@@ -1,14 +1,12 @@
-from aiogram.filters import StateFilter
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message
 
 from aiogram import Router, F
 
 from DB.users_sqlite import Database
-from keyboards import user_keyboards
+from bot.keyboards import user_keyboards
 
-from config_data.config import Config, load_config
-from lexicon.lexicon import LEXICON_RU
+from config.init import Config, load_config
+from DB.lexicon.lexicon import LEXICON_RU
 
 config: Config = load_config()
 

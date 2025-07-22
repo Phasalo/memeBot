@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
-from models.models import User, Query
+from config.models import User, Query
 
 
 class IDatabase(ABC):

@@ -2,9 +2,9 @@ from typing import Union
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from DB.users_sqlite import Database
-from config_data.config import config, bot
+from config.init import config, bot
 from utils import format_string
-from handlers.callbacks_data import CutMessageCallBack
+from bot.handlers.callbacks_data import CutMessageCallBack
 
 
 async def get_users_by_page(user_id: int, page: int = 1, message_id: Union[int, None] = None):

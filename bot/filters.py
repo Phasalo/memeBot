@@ -3,7 +3,7 @@ from typing import Optional
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 from DB.users_sqlite import Database
-from models.models import User
+from config.models import User
 
 
 class AdminUser(BaseFilter):

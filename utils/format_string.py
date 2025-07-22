@@ -1,6 +1,6 @@
 import re
 from typing import List, Optional
-from models.models import User, Query
+from config.models import User, Query
 
 
 def format_string(text: str):

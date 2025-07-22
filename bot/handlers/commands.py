@@ -1,11 +1,9 @@
 from aiogram import Router
-from aiogram.filters import CommandStart, Command, StateFilter
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state
+from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
-from config_data.config import Config, load_config
-from lexicon.lexicon import LEXICON_RU
+from config.init import Config, load_config
+from DB.lexicon.lexicon import LEXICON_RU
 
 router = Router()
 config: Config = load_config()

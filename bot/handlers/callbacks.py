@@ -1,7 +1,7 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.types import CallbackQuery
-from keyboards import inline_keyboards as ikb
-from handlers.callbacks_data import CutMessageCallBack
+from bot.keyboards import inline_keyboards as ikb
+from bot.handlers.callbacks_data import CutMessageCallBack
 
 router = Router()
 

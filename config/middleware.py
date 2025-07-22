@@ -2,7 +2,7 @@ from aiogram import BaseMiddleware, Dispatcher
 from typing import Callable, Dict, Any, Awaitable
 from aiogram.types import Message, TelegramObject
 from DB.users_sqlite import Database
-from models.models import User
+from config.models import User
 
 
 class UserRegistrationMiddleware(BaseMiddleware):

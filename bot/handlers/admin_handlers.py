@@ -5,9 +5,10 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from DB.users_sqlite import Database
-from filters import filters
-from utils import format_string, decorators
-from keyboards import inline_keyboards as ikb
+from bot import filters
+from utils import format_string
+from bot import decorators
+from bot.keyboards import inline_keyboards as ikb
 
 router = Router()
 router.message.filter(filters.AdminUser())
