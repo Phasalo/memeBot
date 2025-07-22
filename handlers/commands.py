@@ -13,14 +13,14 @@ config: Config = load_config()
 
 @router.message(CommandStart())  # /start
 async def process_start_command(message: Message):
-    await message.answer(LEXICON_RU['/start'])
+    await message.answer(LEXICON_RU['commands']['start'])
 
 
 @router.message(Command(commands=['help']))  # /help
 async def process_help_command(message: Message):
-    await message.answer(LEXICON_RU['/help'])
+    await message.answer(LEXICON_RU['commands']['help'])
 
 
 @router.message(Command(commands=['about']))  # /help
 async def process_help_command(message: Message):
-    await message.answer(LEXICON_RU['/about'])
+    await message.answer(LEXICON_RU['commands']['about'])
