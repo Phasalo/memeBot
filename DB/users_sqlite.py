@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from datetime import datetime, timedelta
-from typing import List, Optional, Iterator
+from typing import List, Optional
 from models.models import User, Query
 from DB.db_interface import IDatabase
 
@@ -39,12 +39,30 @@ class Database(IDatabase):
         self.conn.commit()
 
     def add_user(self, user: User) -> User:
-        """Добавление нового пользователя"""
-        self.cursor.execute('''
-        INSERT OR IGNORE INTO users (user_id, username, first_name, last_name, is_admin)
-        VALUES (?, ?, ?, ?, ?)''',
-                            (user.user_id, user.username, user.first_name, user.last_name, int(user.is_admin)))
-        self.conn.commit()
+        """Добавляет или обновляет пользователя"""
+        existing_user = self.get_user(user.user_id)
+
+        if existing_user:
+            needs_update = (
+                    (existing_user.username != user.username and user.username)
+                    or (existing_user.first_name != user.first_name and user.first_name)
+                    or (existing_user.last_name != user.last_name and user.last_name)
+            )
+
+            if needs_update:
+                self.cursor.execute('''
+                    UPDATE users 
+                    SET username = ?, first_name = ?, last_name = ?
+                    WHERE user_id = ?''',
+                                    (user.username, user.first_name, user.last_name, user.user_id))
+                self.conn.commit()
+        else:
+            self.cursor.execute('''
+                INSERT INTO users (user_id, username, first_name, last_name, is_admin)
+                VALUES (?, ?, ?, ?, ?)''',
+                                (user.user_id, user.username, user.first_name, user.last_name, int(user.is_admin)))
+            self.conn.commit()
+
         return self.get_user(user.user_id)
 
     def get_user(self, user_id: int) -> Optional[User]:
