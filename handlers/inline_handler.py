@@ -1,4 +1,3 @@
-from typing import List
 from aiogram import Router, types
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
 from config_data.config import Config, load_config

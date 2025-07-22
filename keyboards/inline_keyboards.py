@@ -40,9 +40,9 @@ async def user_query_by_page(user_id: int, user_id_to_find: Union[int, None], pa
         txt = f'История запросов <b>{"@" + username if username else user_id_to_find}</b>\n\n'
         query: models.Query
         for query in queries:
-            query_time = query.query_date if query.query_date else '❓'
+            query_time = query.query_date.strftime("%d.%m.%Y %H:%M:%S") if query.query_date else '❓'
             user_query = format_string.format_string(query.query_text).replace("\n", "\t")
-            line = f'[{query_time}]: <blockquote>{user_query}</blockquote>\n\n'
+            line = f'<blockquote>{query_time}</blockquote> <i>{user_query}</i>\n\n'
             if len(line) + len(txt) < 4096:
                 txt += line
         txt = format_string.split_text(txt, config.tg_bot.message_max_symbols)

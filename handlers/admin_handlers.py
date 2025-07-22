@@ -2,7 +2,6 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from DB import users_sqlite
 from DB.users_sqlite import Database
 from filters import filters
 from utils import format_string
@@ -31,8 +30,8 @@ async def cmd_query(message: Message):
     with Database() as db:
         for query in db.get_last_queries(int(amount)):
             username = db.get_user(query.user_id).username
-            query_time = query.query_date if query.query_date else '❓'
-            line = f'<i>@{username if username else query.user_id}</i> — [{query_time}]: <blockquote>{format_string.format_string(query.query_text)}</blockquote>\n\n'
+            query_time = query.query_date.strftime("%d.%m.%Y %H:%M:%S") if query.query_date else '❓'
+            line = f'<i>@{username if username else query.user_id}</i> <blockquote>{query_time}</blockquote> <i>{format_string.format_string(query.query_text)}</i>\n\n'
             if len(line) + len(txt) < 4096:
                 txt += line
             else:
