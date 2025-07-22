@@ -26,26 +26,24 @@ async def cmd_getcoms(message: Message):
 @router.message(Command(commands='query'))  # /query
 @decorators.one_argument_command
 async def cmd_query(message: Message, amount: Optional[int]):
-    txt = ''
     if not amount:
         amount = 5
+
     with Database() as db:
-        for query in db.get_last_queries(int(amount)):
-            username = query.user.username
-            query_time = query.query_date.strftime("%d.%m.%Y %H:%M:%S") if query.query_date else '❓'
-            line = f'<i>@{username if username else query.user_id}</i> <blockquote>{query_time}</blockquote> <i>{format_string.format_string(query.query_text)}</i>\n\n'
-            if len(line) + len(txt) < 4096:
-                txt += line
-            else:
-                try:
-                    await message.answer(text=txt)
-                except Exception as e:
-                    await message.answer(text=f'Произошла ошибка!\n{e}')
-                txt = line
-        if len(txt) != 0:
-            await message.answer(txt, disable_web_page_preview=True)
-        else:
+        queries = db.get_last_queries(int(amount))
+        if not queries:
             await message.answer('Запросов не было')
+            return
+
+        txt = format_string.format_queries_text(
+            queries=queries,
+            header_template='',
+            line_template="{username} <blockquote>{time}</blockquote> <i>{query}</i>\n\n",
+            show_username=True
+        )
+
+        if txt:
+            await message.answer(txt.replace('\t', '\n'), disable_web_page_preview=True)
 
 
 @router.message(Command(commands='user_query'))  # /user_query

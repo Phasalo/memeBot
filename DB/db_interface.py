@@ -40,7 +40,7 @@ class IDatabase(ABC):
         pass
 
     @abstractmethod
-    def get_last_queries(self, amount: int = 10) -> List[Query]:
+    def get_last_queries(self, amount: int = 5) -> List[Query]:
         """Возвращает последние N запросов из базы данных"""
         pass
 

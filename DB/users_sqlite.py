@@ -106,8 +106,15 @@ class Database(IDatabase):
     def get_all_users(self) -> List[User]:
         """Генератор всех пользователей"""
         self.cursor.execute('''
-        SELECT user_id, username, first_name, last_name, is_admin, registration_date 
-        FROM users ORDER BY registration_date DESC''')
+            SELECT 
+                u.user_id, u.username, u.first_name, u.last_name, 
+                u.is_admin, u.registration_date,
+                COUNT(q.query_id) as query_count
+            FROM users u
+            LEFT JOIN queries q ON u.user_id = q.user_id
+            GROUP BY u.user_id
+            ORDER BY u.registration_date DESC
+        ''')
         return [User(
             user_id=row['user_id'],
             username=row['username'],
@@ -117,10 +124,11 @@ class Database(IDatabase):
             registration_date=(
                 datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                 if row['registration_date']
-                else None)
+                else None),
+            query_count=row['query_count']
         ) for row in self.cursor]
 
-    def get_last_queries(self, amount: int = 10) -> List[Query]:
+    def get_last_queries(self, amount: int = 5) -> List[Query]:
         """
         Возвращает последние N запросов из базы данных
         """

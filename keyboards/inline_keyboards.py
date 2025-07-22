@@ -5,53 +5,60 @@ from DB.users_sqlite import Database
 from config_data.config import config, bot
 from utils import format_string
 from handlers.callbacks_data import CutMessageCallBack
-from models import models
 
 
 async def get_users_by_page(user_id: int, page: int = 1, message_id: Union[int, None] = None):
     with Database() as db:
-        users = db.get_all_users()
-        txt = f'Всего пользователей: <b>{len(users)}</b>\n\n'
-        for user in users:
-            query_amount = len(db.get_user_queries(user.user_id))
-            emoji = '🐥'
-            if query_amount > 100:
-                emoji = '🤯'
-            elif query_amount > 5:
-                emoji = '😎'
-            line = (f'<b>{"@" + user.username if user.username else "🐸"}</b> | <i>{user.user_id}</i> |' +
-                    (' 👑 |' if user.is_admin else '') + f' {emoji} {query_amount} [{user.registration_date.strftime("%d.%m.%Y")}]')
-            txt += line
-        txt = format_string.split_text(txt, config.tg_bot.message_max_symbols)
-        if not message_id:
-            await bot.send_message(chat_id=user_id, text=txt[page - 1], reply_markup=page_keyboard(action=1, page=page, max_page=len(txt)))
+        users_info = db.get_all_users()
+
+        txt = format_string.format_user_list(users_info)
+        pages = format_string.split_text(txt, config.tg_bot.message_max_symbols)
+
+        if message_id:
+            await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=pages[page - 1],
+                                        reply_markup=page_keyboard(action=1, page=page, max_page=len(pages)))
         else:
-            await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=txt[page - 1],
-                                        reply_markup=page_keyboard(action=1, page=page, max_page=len(txt)))
+            await bot.send_message(chat_id=user_id, text=pages[page - 1], reply_markup=page_keyboard(action=1, page=page, max_page=len(pages)))
 
 
 async def user_query_by_page(user_id: int, user_id_to_find: Union[int, None], page: int = 1, message_id: Union[int, None] = None):
     with Database() as db:
-        queries = (db.get_user_queries(user_id_to_find))
+        queries = db.get_user_queries(user_id_to_find)
         if not user_id_to_find or not queries:
             await bot.send_message(chat_id=user_id, text='Неправильный <i>user_id</i> или этот пользователь не отправлял запросы')
             return
-        username = db.get_user(user_id_to_find).username
-        txt = f'История запросов <b>{"@" + username if username else user_id_to_find}</b>\n\n'
-        query: models.Query
-        for query in queries:
-            query_time = query.query_date.strftime("%d.%m.%Y %H:%M:%S") if query.query_date else '❓'
-            user_query = format_string.format_string(query.query_text).replace("\n", "\t")
-            line = f'<blockquote>{query_time}</blockquote> <i>{user_query}</i>\n\n'
-            if len(line) + len(txt) < 4096:
-                txt += line
-        txt = format_string.split_text(txt, config.tg_bot.message_max_symbols)
-        if not message_id:
-            await bot.send_message(chat_id=user_id, text=txt[page - 1].replace('\t', '\n'),
-                                   reply_markup=page_keyboard(action=2, page=page, max_page=len(txt), user_id=user_id_to_find))
+
+        user = db.get_user(user_id_to_find)
+        txt = format_string.format_queries_text(
+            queries=queries,
+            username=user.username if user else None,
+            user_id=user_id_to_find,
+            header_template="История запросов <b>{username}</b>\n\n",
+            line_template="<blockquote>{time}</blockquote> <i>{query}</i>\n\n"
+        )
+
+        pages = format_string.split_text(txt, config.tg_bot.message_max_symbols)
+        reply_markup = page_keyboard(
+            action=2,
+            page=page,
+            max_page=len(pages),
+            user_id=user_id_to_find
+        )
+
+        text_to_send = pages[page - 1].replace('\t', '\n')
+        if message_id:
+            await bot.edit_message_text(
+                chat_id=user_id,
+                message_id=message_id,
+                text=text_to_send,
+                reply_markup=reply_markup
+            )
         else:
-            await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=txt[page - 1].replace('\t', '\n'),
-                                        reply_markup=page_keyboard(action=2, page=page, max_page=len(txt), user_id=user_id_to_find))
+            await bot.send_message(
+                chat_id=user_id,
+                text=text_to_send,
+                reply_markup=reply_markup
+            )
 
 
 def page_keyboard(action: int, page: int, max_page: int, user_id: int = 0):
