@@ -1,13 +1,11 @@
 from aiogram import BaseMiddleware, Dispatcher
 from typing import Callable, Dict, Any, Awaitable
 from aiogram.types import Message, TelegramObject
-from DB.db_interface import IDatabase
+from DB.users_sqlite import Database
+from models.models import User
 
 
 class UserRegistrationMiddleware(BaseMiddleware):
-    def __init__(self, db: IDatabase):
-        self.db = db
-
     async def __call__(
             self,
             handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
@@ -28,12 +26,24 @@ class UserRegistrationMiddleware(BaseMiddleware):
         #                                                          |
         #   <-| ----------------- -<phasalo>- ------------------ |->
 
+        # например
+        user = event.from_user
+        db_user = User(
+            user_id=user.id,
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name
+        )
+        with Database() as db:
+            db.add_user(db_user)
+        #
+
         return await handler(event, data)
 
 
-def setup_middlewares(dp: Dispatcher, db: IDatabase):
+def setup_middlewares(dp: Dispatcher):
     # Создаем экземпляр middleware и передаем в него базу данных
-    user_middleware = UserRegistrationMiddleware(db)
+    user_middleware = UserRegistrationMiddleware()
 
     # Регистрируем middleware для всех сообщений
     dp.message.middleware.register(user_middleware)

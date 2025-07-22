@@ -1,7 +1,6 @@
 import asyncio
 from aiogram import Dispatcher
 
-from DB.users_sqlite import Database
 from config_data.config import bot
 from config_data.middleware import setup_middlewares
 from handlers import user_handlers, admin_handlers, commands, callbacks, inline_handler
@@ -9,8 +8,7 @@ from handlers import user_handlers, admin_handlers, commands, callbacks, inline_
 
 async def main() -> None:
     dp = Dispatcher()
-    db = Database()
-    setup_middlewares(dp, db)
+    setup_middlewares(dp)
     dp.include_router(admin_handlers.router)
     dp.include_router(commands.router)
     dp.include_router(user_handlers.router)

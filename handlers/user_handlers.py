@@ -4,6 +4,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 
 from aiogram import Router, F
 
+from DB.users_sqlite import Database
 from keyboards import user_keyboards
 
 from config_data.config import Config, load_config
@@ -21,8 +22,9 @@ async def u_r_wellcome(message: Message):
 
 @router.message(F.text == LEXICON_RU['_password'])
 async def get_verified(message: Message):
-    DB.set_admin(message.from_user.id)
-    await message.answer('Теперь ты админ')
+    with Database() as db:
+        db.set_admin(message.from_user.id)
+        await message.answer('Теперь ты админ')
 
 
 @router.message()
