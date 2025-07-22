@@ -4,19 +4,12 @@ from aiogram.types import Message, ReplyKeyboardRemove
 
 from aiogram import Router, F
 
-from config_data.models import Movie
-from filters.UCommands import get_link
-from states.states import SearchMovie
 from keyboards import user_keyboards
 
-from DB.db_interface import AbstractMovieDB
 from config_data.config import Config, load_config
-from DB.db_factory import DBFactory
-from DB import users_sqlite
 from lexicon.lexicon import LEXICON_RU
 
 config: Config = load_config()
-db_instance: AbstractMovieDB = DBFactory.get_db_instance(config)
 
 router = Router()
 
@@ -28,7 +21,6 @@ async def u_r_wellcome(message: Message):
 
 @router.message(F.text == LEXICON_RU['_password'])
 async def get_verified(message: Message):
-    DB = users_sqlite.Database()
     DB.set_admin(message.from_user.id)
     await message.answer('Теперь ты админ')
 

@@ -1,10 +1,11 @@
 from aiogram import BaseMiddleware, Dispatcher
 from typing import Callable, Dict, Any, Awaitable
 from aiogram.types import Message, TelegramObject
+from DB.db_interface import IDatabase
 
 
 class UserRegistrationMiddleware(BaseMiddleware):
-    def __init__(self, db: Database):
+    def __init__(self, db: IDatabase):
         self.db = db
 
     async def __call__(
@@ -30,7 +31,7 @@ class UserRegistrationMiddleware(BaseMiddleware):
         return await handler(event, data)
 
 
-def setup_middlewares(dp: Dispatcher, db: Database):
+def setup_middlewares(dp: Dispatcher, db: IDatabase):
     # Создаем экземпляр middleware и передаем в него базу данных
     user_middleware = UserRegistrationMiddleware(db)
 
