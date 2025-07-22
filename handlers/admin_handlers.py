@@ -1,10 +1,12 @@
+from typing import Optional
+
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
 from DB.users_sqlite import Database
 from filters import filters
-from utils import format_string
+from utils import format_string, decorators
 from keyboards import inline_keyboards as ikb
 
 router = Router()
@@ -22,14 +24,14 @@ async def cmd_getcoms(message: Message):
 
 
 @router.message(Command(commands='query'))  # /query
-async def cmd_query(message: Message):
+@decorators.one_argument_command
+async def cmd_query(message: Message, amount: Optional[int]):
     txt = ''
-    amount = format_string.find_first_number(message.text)
     if not amount:
         amount = 5
     with Database() as db:
         for query in db.get_last_queries(int(amount)):
-            username = db.get_user(query.user_id).username
+            username = query.user.username
             query_time = query.query_date.strftime("%d.%m.%Y %H:%M:%S") if query.query_date else '❓'
             line = f'<i>@{username if username else query.user_id}</i> <blockquote>{query_time}</blockquote> <i>{format_string.format_string(query.query_text)}</i>\n\n'
             if len(line) + len(txt) < 4096:
@@ -47,6 +49,6 @@ async def cmd_query(message: Message):
 
 
 @router.message(Command(commands='user_query'))  # /user_query
-async def cmd_user_query(message: Message):
-    user_id_to_find = format_string.find_first_number(message.text)
+@decorators.one_argument_command
+async def cmd_user_query(message: Message, user_id_to_find: int):
     await ikb.user_query_by_page(message.from_user.id, user_id_to_find)
