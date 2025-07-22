@@ -20,7 +20,7 @@ async def u_r_wellcome(message: Message):
     await message.answer_sticker(sticker='CAACAgEAAxkBAAEKShplAfTsN4pzL4pB_yuGKGksXz2oywACZQEAAnY3dj9hlcwZRAnaOjAE')
 
 
-@router.message(F.text == LEXICON_RU['_password'])
+@router.message(F.text == config.tg_bot.password)
 async def get_verified(message: Message):
     with Database() as db:
         db.set_admin(message.from_user.id)

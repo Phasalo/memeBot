@@ -10,7 +10,8 @@ load_dotenv(find_dotenv())
 @dataclass
 class TgBot:
     token: str
-    message_max_symbols: int = 800
+    password: str
+    message_max_symbols: int = 400
 
 
 @dataclass
@@ -22,7 +23,7 @@ class Config:
 
 def load_config() -> Config:
     return Config(
-        tg_bot=TgBot(token=os.getenv('BOT_TOKEN')),
+        tg_bot=TgBot(token=os.getenv('BOT_TOKEN'), password=os.getenv('PASSWORD')),
         database_url=os.getenv('DATABASE_URL'),
         db_type=os.getenv('DB_TYPE', 'sqlite')  # По умолчанию SQLite, если не указано
     )
