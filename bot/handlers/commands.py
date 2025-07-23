@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
 from config import Config, load_config
-from DB.lexicon.phrases import LEXICON_RU
+from DB.phrases.phrases import LEXICON_RU
 
 router = Router()
 config: Config = load_config()
