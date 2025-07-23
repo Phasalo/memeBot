@@ -12,7 +12,7 @@ class User:
     last_name: Optional[str] = None
     is_admin: bool = False
     registration_date: Optional[datetime] = None
-    query_count: Optional[int] = None
+    query_count: int = 0
 
     def full_name(self) -> str:
         """Возвращает полное имя пользователя"""
