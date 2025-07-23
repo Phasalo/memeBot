@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from datetime import datetime, timedelta
-from typing import List, Optional, Iterator
+from typing import List, Optional
 from config.models import User, Query
 from DB.db_interface import IDatabase
 
@@ -39,12 +39,30 @@ class Database(IDatabase):
         self.conn.commit()
 
     def add_user(self, user: User) -> User:
-        """Добавление нового пользователя"""
-        self.cursor.execute('''
-        INSERT OR IGNORE INTO users (user_id, username, first_name, last_name, is_admin)
-        VALUES (?, ?, ?, ?, ?)''',
-                            (user.user_id, user.username, user.first_name, user.last_name, int(user.is_admin)))
-        self.conn.commit()
+        """Добавляет или обновляет пользователя"""
+        existing_user = self.get_user(user.user_id)
+
+        if existing_user:
+            needs_update = (
+                    (existing_user.username != user.username and user.username)
+                    or (existing_user.first_name != user.first_name and user.first_name)
+                    or (existing_user.last_name != user.last_name and user.last_name)
+            )
+
+            if needs_update:
+                self.cursor.execute('''
+                    UPDATE users 
+                    SET username = ?, first_name = ?, last_name = ?
+                    WHERE user_id = ?''',
+                                    (user.username, user.first_name, user.last_name, user.user_id))
+                self.conn.commit()
+        else:
+            self.cursor.execute('''
+                INSERT INTO users (user_id, username, first_name, last_name, is_admin)
+                VALUES (?, ?, ?, ?, ?)''',
+                                (user.user_id, user.username, user.first_name, user.last_name, int(user.is_admin)))
+            self.conn.commit()
+
         return self.get_user(user.user_id)
 
     def get_user(self, user_id: int) -> Optional[User]:
@@ -88,8 +106,15 @@ class Database(IDatabase):
     def get_all_users(self) -> List[User]:
         """Генератор всех пользователей"""
         self.cursor.execute('''
-        SELECT user_id, username, first_name, last_name, is_admin, registration_date 
-        FROM users ORDER BY registration_date DESC''')
+            SELECT 
+                u.user_id, u.username, u.first_name, u.last_name, 
+                u.is_admin, u.registration_date,
+                COUNT(q.query_id) as query_count
+            FROM users u
+            LEFT JOIN queries q ON u.user_id = q.user_id
+            GROUP BY u.user_id
+            ORDER BY u.registration_date DESC
+        ''')
         return [User(
             user_id=row['user_id'],
             username=row['username'],
@@ -99,10 +124,11 @@ class Database(IDatabase):
             registration_date=(
                 datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                 if row['registration_date']
-                else None)
+                else None),
+            query_count=row['query_count']
         ) for row in self.cursor]
 
-    def get_last_queries(self, amount: int = 10) -> List[Query]:
+    def get_last_queries(self, amount: int = 5) -> List[Query]:
         """
         Возвращает последние N запросов из базы данных
         """
