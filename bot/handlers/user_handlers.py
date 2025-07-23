@@ -6,7 +6,7 @@ from DB.users_sqlite import Database
 from bot.keyboards import user_keyboards
 
 from config import Config, load_config
-from DB.lexicon.lexicon import LEXICON_RU
+from DB.lexicon.phrases import LEXICON_RU
 
 config: Config = load_config()
 
