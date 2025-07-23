@@ -1,0 +1,160 @@
+from datetime import datetime, timedelta
+from typing import List, Optional
+
+from DB.tables.base import BaseTable
+from config.models import User, Query
+
+
+class QueriesTable(BaseTable):
+    __tablename__ = 'queries'
+        
+    def create_table(self):
+        """Создание таблицы queries"""
+        self.cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS {self.__tablename__} (
+            query_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            query_text TEXT NOT NULL,
+            query_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (user_id)
+        )''')
+        self.cursor.execute(f'CREATE INDEX IF NOT EXISTS idx_user_queries ON {self.__tablename__}(user_id)')
+        self.conn.commit()
+        self._log("CREATE_TABLE")
+
+    def add_query(self, query: Query) -> Query:
+        """Добавление нового запроса"""
+        self.cursor.execute(f'''
+        INSERT INTO {self.__tablename__} (user_id, query_text)
+        VALUES (?, ?)''', (query.user_id, query.query_text))
+        query_id = self.cursor.lastrowid
+        self.conn.commit()
+        self._log("ADD_QUERY", query_id=query_id, user_id=query.user_id)
+        return self.get_query(query_id)
+
+    def get_query(self, query_id: int) -> Optional[Query]:
+        """Получение запроса по ID"""
+        self.cursor.execute(f'''
+        SELECT q.query_id, q.user_id, q.query_text, q.query_date,
+               u.username, u.first_name, u.last_name, u.is_admin
+        FROM {self.__tablename__} q
+        LEFT JOIN users u ON q.user_id = u.user_id
+        WHERE q.query_id = ?''', (query_id,))
+        row = self.cursor.fetchone()
+        if row:
+            user = User(
+                user_id=row['user_id'],
+                username=row['username'],
+                first_name=row['first_name'],
+                last_name=row['last_name'],
+                is_admin=bool(row['is_admin'])
+            ) if row['user_id'] else None
+
+            return Query(
+                query_id=row['query_id'],
+                user_id=row['user_id'],
+                query_text=row['query_text'],
+                query_date=(
+                    datetime.fromisoformat(row['query_date']) + timedelta(hours=3)
+                    if row['query_date']
+                    else None
+                ),
+                user=user
+            )
+        return None
+
+    def get_user_queries(self, user_id: int, limit: Optional[int] = None) -> List[Query]:
+        """Получение запросов пользователя"""
+        query = f'''
+        SELECT q.query_id, q.user_id, q.query_text, q.query_date,
+               u.username, u.first_name, u.last_name, u.is_admin
+        FROM {self.__tablename__} q
+        LEFT JOIN users u ON q.user_id = u.user_id
+        WHERE q.user_id = ?
+        ORDER BY q.query_date DESC'''
+
+        params = (user_id,)
+        if limit:
+            query += ' LIMIT ?'
+            params = (user_id, limit)
+
+        self.cursor.execute(query, params)
+        return [
+            Query(
+                query_id=row['query_id'],
+                user_id=row['user_id'],
+                query_text=row['query_text'],
+                query_date=(
+                    datetime.fromisoformat(row['query_date']) + timedelta(hours=3)
+                    if row['query_date']
+                    else None
+                ),
+                user=User(
+                    user_id=row['user_id'],
+                    username=row['username'],
+                    first_name=row['first_name'],
+                    last_name=row['last_name'],
+                    is_admin=bool(row['is_admin'])
+                )
+            ) for row in self.cursor
+        ]
+
+    def get_all_queries(self, limit: Optional[int] = None) -> List[Query]:
+        """Получение всех запросов"""
+        query = f'''
+        SELECT q.query_id, q.user_id, q.query_text, q.query_date,
+               u.username, u.first_name, u.last_name, u.is_admin
+        FROM {self.__tablename__} q
+        LEFT JOIN users u ON q.user_id = u.user_id
+        ORDER BY q.query_date DESC'''
+
+        params = ()
+        if limit:
+            query += ' LIMIT ?'
+            params = (limit,)
+
+        self.cursor.execute(query, params)
+        return [
+            Query(
+                query_id=row['query_id'],
+                user_id=row['user_id'],
+                query_text=row['query_text'],
+                query_date=(
+                    datetime.fromisoformat(row['query_date']) + timedelta(hours=3)
+                    if row['query_date']
+                    else None
+                ),
+                user=User(
+                    user_id=row['user_id'],
+                    username=row['username'],
+                    first_name=row['first_name'],
+                    last_name=row['last_name'],
+                    is_admin=bool(row['is_admin'])
+                ) if row['user_id'] else None
+            ) for row in self.cursor
+        ]
+
+    def get_last_queries(self, amount: int = 5) -> List[Query]:
+        """Получение последних запросов"""
+        if amount < 0:
+            raise ValueError("Amount cannot be negative")
+
+        return self.get_all_queries(limit=amount)
+
+    def delete_query(self, query_id: int) -> bool:
+        """Удаление запроса по ID"""
+        self.cursor.execute(f'DELETE FROM {self.__tablename__} WHERE query_id = ?', (query_id,))
+        self.conn.commit()
+        deleted = self.cursor.rowcount > 0
+        if deleted:
+            self._log("DELETE_QUERY", query_id=query_id)
+        return deleted
+
+    def delete_user_queries(self, user_id: int) -> int:
+        """Удаление всех запросов пользователя"""
+        self.cursor.execute(f'DELETE FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
+        self.conn.commit()
+        deleted_count = self.cursor.rowcount
+        if deleted_count > 0:
+            self._log("DELETE_USER_QUERIES", user_id=user_id, count=deleted_count)
+        return deleted_count

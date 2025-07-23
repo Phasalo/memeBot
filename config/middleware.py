@@ -1,8 +1,10 @@
 from aiogram import BaseMiddleware, Dispatcher
 from typing import Callable, Dict, Any, Awaitable
 from aiogram.types import Message, TelegramObject
-from DB.users_sqlite import Database
-from config.models import User
+
+from DB.tables.queries import QueriesTable
+from DB.tables.users import UsersTable
+from config.models import User, Query
 
 
 class UserRegistrationMiddleware(BaseMiddleware):
@@ -34,8 +36,11 @@ class UserRegistrationMiddleware(BaseMiddleware):
             first_name=user.first_name,
             last_name=user.last_name
         )
-        with Database() as db:
-            db.add_user(db_user)
+        with UsersTable() as users_db:
+            users_db.add_user(db_user)
+        if event.text:
+            with QueriesTable() as queries_db:
+                queries_db.add_query(Query(user.id, event.text))
         #
 
         return await handler(event, data)

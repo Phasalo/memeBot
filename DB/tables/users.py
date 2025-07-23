@@ -1,0 +1,157 @@
+import sqlite3
+from datetime import datetime, timedelta
+from typing import List, Optional
+
+from DB.tables.base import BaseTable
+from config.models import User
+
+
+class UsersTable(BaseTable):
+    __tablename__ = 'users'
+
+    def create_table(self):
+        """Создание таблицы users"""
+        self.cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS {self.__tablename__} (
+            user_id INTEGER PRIMARY KEY,
+            username TEXT,
+            first_name TEXT,
+            last_name TEXT,
+            is_admin BOOLEAN NOT NULL DEFAULT 0,
+            registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )''')
+        self.conn.commit()
+        self._log("CREATE_TABLE")
+
+    def add_user(self, user: User) -> User:
+        """Добавляет или обновляет пользователя"""
+        existing_user = self.get_user(user.user_id)
+
+        if existing_user:
+            needs_update = (
+                (existing_user.username != user.username and user.username)
+                or (existing_user.first_name != user.first_name and user.first_name)
+                or (existing_user.last_name != user.last_name and user.last_name)
+            )
+
+            if needs_update:
+                self.cursor.execute(f'''
+                    UPDATE {self.__tablename__} 
+                    SET username = ?, first_name = ?, last_name = ?
+                    WHERE user_id = ?''',
+                                    (user.username, user.first_name, user.last_name, user.user_id))
+                self.conn.commit()
+                self._log("UPDATE_USER", user_id=user.user_id)
+        else:
+            self.cursor.execute(f'''
+                INSERT INTO {self.__tablename__} (user_id, username, first_name, last_name, is_admin)
+                VALUES (?, ?, ?, ?, ?)''',
+                                (user.user_id, user.username, user.first_name, user.last_name, int(user.is_admin)))
+            self.conn.commit()
+            self._log("ADD_USER", user_id=user.user_id)
+
+        return self.get_user(user.user_id)
+
+    def get_user(self, user_id: int) -> Optional[User]:
+        """Получение пользователя по ID"""
+        self.cursor.execute(f'''
+        SELECT user_id, username, first_name, last_name, is_admin, registration_date 
+        FROM {self.__tablename__} WHERE user_id = ?''', (user_id,))
+        row = self.cursor.fetchone()
+        if row:
+            return User(
+                user_id=row['user_id'],
+                username=row['username'],
+                first_name=row['first_name'],
+                last_name=row['last_name'],
+                is_admin=bool(row['is_admin']),
+                registration_date=(
+                    datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
+                    if row['registration_date']
+                    else None
+                )
+            )
+        return None
+
+    def update_user(self, user: User) -> Optional[User]:
+        """Обновление информации о пользователе"""
+        self.cursor.execute(f'''
+        UPDATE {self.__tablename__} 
+        SET username = ?, first_name = ?, last_name = ?, is_admin = ?
+        WHERE user_id = ?''',
+                            (user.username, user.first_name, user.last_name, int(user.is_admin), user.user_id))
+        self.conn.commit()
+        self._log("UPDATE_USER", user_id=user.user_id)
+        return self.get_user(user.user_id)
+
+    def delete_user(self, user_id: int) -> bool:
+        """Удаление пользователя"""
+        self.cursor.execute(f'DELETE FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
+        self.cursor.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+        self.conn.commit()
+        deleted = self.cursor.rowcount > 0
+        if deleted:
+            self._log("DELETE_USER", user_id=user_id)
+        return deleted
+
+    def get_all_users(self) -> List[User]:
+        """Получение всех пользователей"""
+        self.cursor.execute('''
+            SELECT 
+                u.user_id, u.username, u.first_name, u.last_name, 
+                u.is_admin, u.registration_date,
+                COUNT(q.query_id) as query_count
+            FROM users u
+            LEFT JOIN queries q ON u.user_id = q.user_id
+            GROUP BY u.user_id
+            ORDER BY u.registration_date DESC
+        ''')
+        return [User(
+            user_id=row['user_id'],
+            username=row['username'],
+            first_name=row['first_name'],
+            last_name=row['last_name'],
+            is_admin=bool(row['is_admin']),
+            registration_date=(
+                datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
+                if row['registration_date']
+                else None),
+            query_count=row['query_count']
+        ) for row in self.cursor]
+
+    def get_admins(self) -> List[User]:
+        """Получение администраторов"""
+        self.cursor.execute(f'''
+        SELECT user_id, username, first_name, last_name, is_admin, registration_date 
+        FROM {self.__tablename__} WHERE is_admin = 1''')
+        return [User(
+            user_id=row['user_id'],
+            username=row['username'],
+            first_name=row['first_name'],
+            last_name=row['last_name'],
+            is_admin=True,
+            registration_date=(
+                datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
+                if row['registration_date']
+                else None
+            )
+        ) for row in self.cursor]
+
+    def set_admin(self, user_id: int, is_admin: bool = True) -> bool:
+        """Установка прав администратора"""
+        try:
+            self.cursor.execute(f'SELECT 1 FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
+            if not self.cursor.fetchone():
+                return False
+
+            self.cursor.execute(
+                f'UPDATE {self.__tablename__} SET is_admin = ? WHERE user_id = ?',
+                (int(is_admin), user_id)
+            )
+            self.conn.commit()
+            self._log("SET_ADMIN", user_id=user_id, is_admin=is_admin)
+            return True
+        except sqlite3.Error as e:
+            self.conn.rollback()
+            self._log("ERROR", error=str(e), action="SET_ADMIN")
+            return False

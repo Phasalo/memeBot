@@ -2,7 +2,8 @@ from typing import Optional
 from aiogram.types import Message
 
 from DB.phrases.phrases import PHRASES_RU
-from DB.users_sqlite import Database
+from DB.tables.queries import QueriesTable
+from DB.tables.users import UsersTable
 from utils import format_string
 from bot import decorators
 from bot.keyboards import inline_keyboards as ikb
@@ -46,8 +47,8 @@ async def _(message: Message, user_id):
     if not user_id:
         await message.answer(PHRASES_RU.errors.wrong_user_id)
         return
-    with Database() as db:
-        ok = db.set_admin(user_id, False)
+    with UsersTable() as users_db:
+        ok = users_db.set_admin(user_id, False)
         if ok:
             await message.answer(PHRASES_RU.success.user_demoted)
         else:
@@ -65,8 +66,8 @@ async def cmd_query(message: Message, amount: Optional[int]):
     if not amount:
         amount = 5
 
-    with Database() as db:
-        queries = db.get_last_queries(int(amount))
+    with QueriesTable() as queries_db:
+        queries = queries_db.get_last_queries(int(amount))
         if not queries:
             await message.answer('Запросов не было')
             return

@@ -1,4 +1,3 @@
-from os.path import dirname
+from pathlib import Path
 
-__MAIN_DIR = f'{dirname(__file__)}/..'
-
+BASE_DIR = Path(__file__).parent.parent

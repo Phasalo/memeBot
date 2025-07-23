@@ -23,9 +23,12 @@ from aiogram import Dispatcher
 from config import bot
 from config.middleware import setup_middlewares
 from bot.handlers import callbacks, user_handlers, inline_handler, commands, admin_handlers
+from DB import init_database
 
 
 async def main() -> None:
+    init_database()
+
     dp = Dispatcher()
     setup_middlewares(dp)
     dp.include_router(admin_handlers.router)

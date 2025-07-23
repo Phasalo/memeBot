@@ -2,7 +2,7 @@ from aiogram.types import Message
 
 from aiogram import Router, F
 
-from DB.users_sqlite import Database
+from DB.tables.users import UsersTable
 from bot.keyboards import user_keyboards
 
 from config import Config, load_config
@@ -20,8 +20,8 @@ async def u_r_wellcome(message: Message):
 
 @router.message(F.text == config.tg_bot.password)
 async def get_verified(message: Message):
-    with Database() as db:
-        ok = db.set_admin(message.from_user.id)
+    with UsersTable() as users_db:
+        ok = users_db.set_admin(message.from_user.id)
         if ok:
             await message.answer(PHRASES_RU.success.admin_promoted)
         else:
