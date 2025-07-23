@@ -1,6 +1,5 @@
 from aiogram.types import Message
 from utils.format_string import find_first_number
-from
 
 
 def one_argument_command(func):

@@ -3,7 +3,7 @@ from typing import List, Optional
 from config.models import User, Query
 
 
-def format_string(text: str):
+def clear_string(text: str):
     if not text:
         return '⬛️'
     return text.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;")
@@ -90,7 +90,7 @@ def format_queries_text(
 
     for query in queries:
         query_time = query.query_date.strftime("%d.%m.%Y %H:%M:%S") if query.query_date else '❓'
-        user_query = format_string(query.query_text).replace("\n", "\t")
+        user_query = clear_string(query.query_text).replace("\n", "\t")
         line_data = {
             'time': query_time,
             'query': user_query,
