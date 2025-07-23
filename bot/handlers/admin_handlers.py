@@ -15,12 +15,37 @@ router.message.filter(filters.AdminUser())
 
 
 @router.message(Command(commands='get_users'))  # /get_users
-async def cmd_get_users(message: Message):
+async def _(message: Message):
     await ikb.get_users_by_page(message.from_user.id)
 
 
-@router.message(Command(commands='getcoms'))  # /getcoms
-async def cmd_getcoms(message: Message):
+@router.message(Command(commands='get_cmds'))  # /getcmds
+async def _(message: Message):
+    pass
+
+
+@router.message(Command(commands='ban'))  # /ban
+async def _(message: Message, user_id):
+    pass
+
+
+@router.message(Command(commands='unban'))  # /unban
+async def _(message: Message, user_id):
+    pass
+
+
+@router.message(Command(commands='promote'))  # /promote
+async def _(message: Message, user_id):
+    pass
+
+
+@router.message(Command(commands='demote'))  # /demote
+async def _(message: Message, user_id):
+    pass
+
+
+@router.message(Command(commands='root'))  # /root
+async def _(message: Message):
     pass
 
 
