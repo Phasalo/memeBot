@@ -2,6 +2,7 @@ from json import load as json_load
 from os.path import dirname
 from typing import Any, Dict
 from random import choice
+import re
 
 
 class Phrases:
@@ -24,6 +25,35 @@ class Phrases:
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def get(self, phrase_name: str, **replacements: Any) -> str:
+        """
+        Получает фразу с заменой плейсхолдеров
+
+        :param phrase_name: Название фразы (например 'success.user_banned')
+        :param replacements: Параметры для замены (например user_id=123)
+        :return: Готовая фраза с подставленными значениями
+        """
+        parts = phrase_name.split('.')
+        current = self
+
+        try:
+            for part in parts:
+                current = getattr(current, part)
+        except AttributeError:
+            raise AttributeError(f'Фраза "{phrase_name}" не найдена')
+
+        if isinstance(current, list):
+            phrase = choice(current)
+        else:
+            phrase = current
+
+        # Заменяем все плейсхолдеры вида {key}
+        for key, value in replacements.items():
+            pattern = re.compile(r'\{\s*' + re.escape(key) + r'\s*\}')
+            phrase = pattern.sub(str(value), phrase)
+
+        return phrase
 
 
 def __load_phrases(phrases_path: str) -> Phrases:
