@@ -1,5 +1,28 @@
+from typing import List
+
+from aiogram import Router
+from aiogram.filters import Command
 from aiogram.types import Message
+
 from utils.format_string import find_first_number
+from config.models import CommandUnit
+
+available_commands: List[CommandUnit] = []
+
+
+def cmd(command: str, rt: Router, description: str = ""):
+    """Декоратор для регистрации команд."""
+
+    def decorator(func):
+        is_admin = getattr(rt, 'is_admin', False)
+        available_commands.append(CommandUnit(command, description, is_admin))
+
+        @rt.message(Command(command))
+        async def wrapper(message: Message):
+            await func(message)
+        return func
+
+    return decorator
 
 
 def one_argument_command(func):
