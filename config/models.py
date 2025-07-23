@@ -11,6 +11,7 @@ class User:
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     is_admin: bool = False
+    banned: bool = False
     registration_date: Optional[datetime] = None
     query_count: int = 0
 

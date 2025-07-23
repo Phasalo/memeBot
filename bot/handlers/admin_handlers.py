@@ -27,8 +27,17 @@ async def _(message: Message):
 
 
 @cmd('ban', router, 'заблокировать пользователя по ID')             # /ban
+@decorators.one_argument_command
 async def _(message: Message, user_id):
-    pass
+    if message.from_user.id == int(user_id):
+        await message.answer(PHRASES_RU.errors.ban_yourself)
+        return
+    with UsersTable() as user_db:
+        ok = user_db.set_ban_status(user_id, message.from_user.id, True)
+        if ok:
+            await message.answer(PHRASES_RU.get('success.user_banned', user_id=user_id))
+        else:
+            await message.answer(PHRASES_RU.errors.db_error)
 
 
 @cmd('unban', router, 'разблокировать пользователя по ID')          # /unban
@@ -48,9 +57,9 @@ async def _(message: Message, user_id):
         await message.answer(PHRASES_RU.errors.wrong_user_id)
         return
     with UsersTable() as users_db:
-        ok = users_db.set_admin(user_id, False)
+        ok = users_db.set_admin(user_id, message.from_user.id, False)
         if ok:
-            await message.answer(PHRASES_RU.success.user_demoted)
+            await message.answer(PHRASES_RU.get('success.user_demoted', user_id=user_id))
         else:
             await message.answer(PHRASES_RU.errors.db_error)
 

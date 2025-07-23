@@ -18,6 +18,7 @@ class UsersTable(BaseTable):
             first_name TEXT,
             last_name TEXT,
             is_admin BOOLEAN NOT NULL DEFAULT 0,
+            banned BOOLEAN NOT NULL DEFAULT 0,
             registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )''')
         self.conn.commit()
@@ -55,8 +56,7 @@ class UsersTable(BaseTable):
     def get_user(self, user_id: int) -> Optional[User]:
         """Получение пользователя по ID"""
         self.cursor.execute(f'''
-        SELECT user_id, username, first_name, last_name, is_admin, registration_date 
-        FROM {self.__tablename__} WHERE user_id = ?''', (user_id,))
+        SELECT * FROM {self.__tablename__} WHERE user_id = ?''', (user_id,))
         row = self.cursor.fetchone()
         if row:
             return User(
@@ -65,6 +65,7 @@ class UsersTable(BaseTable):
                 first_name=row['first_name'],
                 last_name=row['last_name'],
                 is_admin=bool(row['is_admin']),
+                banned=bool(row['banned']),
                 registration_date=(
                     datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                     if row['registration_date']
@@ -87,7 +88,7 @@ class UsersTable(BaseTable):
     def delete_user(self, user_id: int) -> bool:
         """Удаление пользователя"""
         self.cursor.execute(f'DELETE FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
-        self.cursor.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+        self.cursor.execute('DELETE FROM queries WHERE user_id = ?', (user_id,))
         self.conn.commit()
         deleted = self.cursor.rowcount > 0
         if deleted:
@@ -99,7 +100,7 @@ class UsersTable(BaseTable):
         self.cursor.execute('''
             SELECT 
                 u.user_id, u.username, u.first_name, u.last_name, 
-                u.is_admin, u.registration_date,
+                u.is_admin, u.banned, u.registration_date,
                 COUNT(q.query_id) as query_count
             FROM users u
             LEFT JOIN queries q ON u.user_id = q.user_id
@@ -112,6 +113,7 @@ class UsersTable(BaseTable):
             first_name=row['first_name'],
             last_name=row['last_name'],
             is_admin=bool(row['is_admin']),
+            banned=bool(row['banned']),
             registration_date=(
                 datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                 if row['registration_date']
@@ -122,14 +124,14 @@ class UsersTable(BaseTable):
     def get_admins(self) -> List[User]:
         """Получение администраторов"""
         self.cursor.execute(f'''
-        SELECT user_id, username, first_name, last_name, is_admin, registration_date 
-        FROM {self.__tablename__} WHERE is_admin = 1''')
+        SELECT * FROM {self.__tablename__} WHERE is_admin = 1''')
         return [User(
             user_id=row['user_id'],
             username=row['username'],
             first_name=row['first_name'],
             last_name=row['last_name'],
             is_admin=True,
+            banned=bool(row['banned']),
             registration_date=(
                 datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                 if row['registration_date']
@@ -137,7 +139,7 @@ class UsersTable(BaseTable):
             )
         ) for row in self.cursor]
 
-    def set_admin(self, user_id: int, is_admin: bool = True) -> bool:
+    def set_admin(self, user_id: int, set_by: int, is_admin: bool = True) -> bool:
         """Установка прав администратора"""
         try:
             self.cursor.execute(f'SELECT 1 FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
@@ -149,9 +151,41 @@ class UsersTable(BaseTable):
                 (int(is_admin), user_id)
             )
             self.conn.commit()
-            self._log("SET_ADMIN", user_id=user_id, is_admin=is_admin)
+            self._log("SET_ADMIN", user_id=user_id, is_admin=is_admin, set_by=set_by)
             return True
         except sqlite3.Error as e:
             self.conn.rollback()
             self._log("ERROR", error=str(e), action="SET_ADMIN")
+            return False
+
+    def set_ban_status(self, user_id: int, banned_by: int, ban: bool = True) -> bool:
+        """
+        Устанавливает или снимает блокировку пользователя
+
+        :param user_id: ID пользователя
+        :param banned_by: Кем заблокирован
+        :param ban: True - заблокировать, False - разблокировать
+
+        :return: True если операция успешна, False если пользователь не найден
+        """
+        try:
+            self.cursor.execute(f'SELECT 1 FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
+            if not self.cursor.fetchone():
+                return False
+
+            self.cursor.execute(
+                f'UPDATE {self.__tablename__} SET banned = ? WHERE user_id = ?',
+                (int(ban), user_id)
+            )
+            self.conn.commit()
+
+            action = "BAN" if ban else "UNBAN"
+            log_details = {"user_id": user_id, "status": ban, "banned_by": banned_by}
+            self._log(action, **log_details)
+
+            return True
+
+        except sqlite3.Error as e:
+            self.conn.rollback()
+            self._log("ERROR", error=str(e), action="SET_BAN_STATUS", user_id=user_id)
             return False

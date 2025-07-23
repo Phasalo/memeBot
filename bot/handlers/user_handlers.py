@@ -21,7 +21,7 @@ async def u_r_wellcome(message: Message):
 @router.message(F.text == config.tg_bot.password)
 async def get_verified(message: Message):
     with UsersTable() as users_db:
-        ok = users_db.set_admin(message.from_user.id)
+        ok = users_db.set_admin(message.from_user.id, message.from_user.id)
         if ok:
             await message.answer(PHRASES_RU.success.admin_promoted)
         else:

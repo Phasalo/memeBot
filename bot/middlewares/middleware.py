@@ -1,10 +1,14 @@
-from aiogram import BaseMiddleware, Dispatcher
+import logging
+from aiogram import BaseMiddleware
 from typing import Callable, Dict, Any, Awaitable
 from aiogram.types import Message, TelegramObject
 
 from DB.tables.queries import QueriesTable
-from DB.tables.users import UsersTable
-from config.models import User, Query
+from config.models import User as UserModel, Query
+from bot.decorators import available_commands
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserRegistrationMiddleware(BaseMiddleware):
@@ -16,9 +20,7 @@ class UserRegistrationMiddleware(BaseMiddleware):
     ) -> Any:
         if not isinstance(event, Message):
             return await handler(event, data)
-
-        skip_commands = ['/help', '/get_users', '/query', '/user_query', '/about', '/getcoms']
-
+        skip_commands = [f"/{command.name}" for command in available_commands if command.is_admin]
         if event.text and any(event.text.startswith(cmd) for cmd in skip_commands):
             return await handler(event, data)
 
@@ -29,26 +31,16 @@ class UserRegistrationMiddleware(BaseMiddleware):
         #   <-| ----------------- -<phasalo>- ------------------ |->
 
         # например
-        user = event.from_user
-        db_user = User(
-            user_id=user.id,
-            username=user.username,
-            first_name=user.first_name,
-            last_name=user.last_name
-        )
-        with UsersTable() as users_db:
-            users_db.add_user(db_user)
+        user_row: UserModel | None = data.get("user_row")
+        if user_row is None:
+            logger.warning(
+                "Cannot add queries. The 'user_row' "
+                "key was not found in the middleware data."
+            )
+            return await handler(event, data)
         if event.text:
             with QueriesTable() as queries_db:
-                queries_db.add_query(Query(user.id, event.text))
+                queries_db.add_query(Query(user_row.user_id, event.text))
         #
 
         return await handler(event, data)
-
-
-def setup_middlewares(dp: Dispatcher):
-    # Создаем экземпляр middleware и передаем в него базу данных
-    user_middleware = UserRegistrationMiddleware()
-
-    # Регистрируем middleware для всех сообщений
-    dp.message.middleware.register(user_middleware)
