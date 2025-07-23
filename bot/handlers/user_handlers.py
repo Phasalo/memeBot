@@ -2,11 +2,11 @@ from aiogram.types import Message
 
 from aiogram import Router, F
 
-from DB.users_sqlite import Database
+from DB.tables.users import UsersTable
 from bot.keyboards import user_keyboards
 
 from config import Config, load_config
-from DB.phrases.phrases import LEXICON_RU
+from DB.phrases.phrases import PHRASES_RU
 
 config: Config = load_config()
 
@@ -20,11 +20,14 @@ async def u_r_wellcome(message: Message):
 
 @router.message(F.text == config.tg_bot.password)
 async def get_verified(message: Message):
-    with Database() as db:
-        db.set_admin(message.from_user.id)
-        await message.answer('Теперь ты админ')
+    with UsersTable() as users_db:
+        ok = users_db.set_admin(message.from_user.id, message.from_user.id)
+        if ok:
+            await message.answer(PHRASES_RU.success.admin_promoted)
+        else:
+            await message.answer(PHRASES_RU.errors.db_error)
 
 
 @router.message()
 async def process_name_command(message: Message):
-    await message.answer(text='К сожалению, я не понимаю, о чем вы', reply_markup=user_keyboards.keyboard)
+    await message.answer(text=PHRASES_RU.hz_answers, reply_markup=user_keyboards.keyboard)

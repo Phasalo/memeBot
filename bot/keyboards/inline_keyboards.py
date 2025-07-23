@@ -1,15 +1,16 @@
 from typing import Union
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from DB.users_sqlite import Database
+from DB.tables.queries import QueriesTable
+from DB.tables.users import UsersTable
 from config import config, bot
 from utils import format_string
 from bot.handlers.callbacks_data import CutMessageCallBack
 
 
 async def get_users_by_page(user_id: int, page: int = 1, message_id: Union[int, None] = None):
-    with Database() as db:
-        users_info = db.get_all_users()
+    with UsersTable() as users_db:
+        users_info = users_db.get_all_users()
 
         txt = format_string.format_user_list(users_info)
         pages = format_string.split_text(txt, config.tg_bot.message_max_symbols)
@@ -22,13 +23,13 @@ async def get_users_by_page(user_id: int, page: int = 1, message_id: Union[int, 
 
 
 async def user_query_by_page(user_id: int, user_id_to_find: Union[int, None], page: int = 1, message_id: Union[int, None] = None):
-    with Database() as db:
-        queries = db.get_user_queries(user_id_to_find)
+    with QueriesTable() as queries_db, UsersTable() as users_db:
+        queries = queries_db.get_user_queries(user_id_to_find)
         if not user_id_to_find or not queries:
             await bot.send_message(chat_id=user_id, text='Неправильный <i>user_id</i> или этот пользователь не отправлял запросы')
             return
 
-        user = db.get_user(user_id_to_find)
+        user = users_db.get_user(user_id_to_find)
         txt = format_string.format_queries_text(
             queries=queries,
             username=user.username if user else None,

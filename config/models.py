@@ -11,6 +11,7 @@ class User:
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     is_admin: bool = False
+    banned: bool = False
     registration_date: Optional[datetime] = None
     query_count: int = 0
 
@@ -32,3 +33,21 @@ class Query:
     query_id: Optional[int] = None
     query_date: Optional[datetime] = None
     user: Optional[User] = None
+
+
+@dataclass
+class CommandUnit:
+    """
+    Контейнер для хранения информации о команде бота.
+    """
+    name: str
+    description: str
+    is_admin: bool
+
+    def __str__(self):
+        command = f"/{self.name}"
+        if self.description:
+            command += f" — {self.description}"
+        if self.is_admin:
+            command += ' [ADMIN]'
+        return command
