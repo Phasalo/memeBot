@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
-from config.init import Config, load_config
+from config import Config, load_config
 from DB.lexicon.lexicon import LEXICON_RU
 
 router = Router()

@@ -2,7 +2,7 @@ from typing import Union
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from DB.users_sqlite import Database
-from config.init import config, bot
+from config import config, bot
 from utils import format_string
 from bot.handlers.callbacks_data import CutMessageCallBack
 

@@ -1,6 +1,6 @@
 from aiogram import Router, types
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent
-from config.init import Config, load_config
+from config import Config, load_config
 
 config: Config = load_config()
 

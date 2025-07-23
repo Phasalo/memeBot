@@ -20,7 +20,7 @@
 import asyncio
 from aiogram import Dispatcher
 
-from config.init import bot
+from config import bot
 from config.middleware import setup_middlewares
 from bot.handlers import callbacks, user_handlers, inline_handler, commands, admin_handlers
 
@@ -33,8 +33,8 @@ async def main() -> None:
     dp.include_router(user_handlers.router)
     dp.include_router(callbacks.router)
     dp.include_router(inline_handler.router)
-    await dp.start_polling(bot)
     print("Phasalo Bot Template запущен!")
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':
