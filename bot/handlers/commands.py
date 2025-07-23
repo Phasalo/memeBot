@@ -19,6 +19,6 @@ async def process_help_command(message: Message):
     await message.answer(LEXICON_RU['commands']['help'])
 
 
-@router.message(Command(commands=['about']))  # /help
-async def process_help_command(message: Message):
+@router.message(Command(commands=['about']))  # /about
+async def process_about_command(message: Message):
     await message.answer(LEXICON_RU['commands']['about'])
