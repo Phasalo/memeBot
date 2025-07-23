@@ -31,8 +31,6 @@ class TgBot:
 @dataclass
 class Config:
     tg_bot: TgBot
-    database_url: str
-    db_type: str  # 'sqlite' or 'postgres'
     log: LogConfig
 
 
@@ -42,8 +40,6 @@ def load_config() -> Config:
             token=os.getenv('BOT_TOKEN'),
             password=os.getenv('PASSWORD')
         ),
-        database_url=os.getenv('DATABASE_URL'),
-        db_type=os.getenv('DB_TYPE', 'sqlite'),
         log=LogConfig(
             level=os.getenv('LOG_LEVEL', 'INFO'),
             file_path=os.getenv('LOG_FILE', 'logs/bot.log'),
