@@ -16,7 +16,7 @@ class BaseRouter(Router):
         if self.is_admin:
             self.message.filter(AdminFilter())
 
-    def cmd(self, command: str, description: str = ''):
+    def command(self, command: str, description: str = ''):
         def decorator(handler):
             self.available_commands.append(CommandUnit(command, description, self.is_admin))
 
