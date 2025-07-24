@@ -1,4 +1,4 @@
-from json import load as json_load
+import yaml
 from os.path import dirname
 from typing import Any, Dict
 from random import choice
@@ -59,8 +59,8 @@ class Phrases:
 
 def __load_phrases(phrases_path: str) -> Phrases:
     with open(phrases_path, 'r', encoding='utf-8') as file:
-        phrases_dict = json_load(file)
-    return Phrases(phrases_dict)
+        data = yaml.safe_load(file)
+    return Phrases(data)
 
 
-PHRASES_RU = __load_phrases(f'{dirname(__file__)}/phrases_ru.json')
+PHRASES_RU = __load_phrases(f'{dirname(__file__)}/phrases_ru.yaml')
