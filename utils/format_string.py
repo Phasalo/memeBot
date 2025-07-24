@@ -43,7 +43,7 @@ def split_text(text, n):
 
 
 def get_query_count_emoji(count: int) -> str:
-    for emoji, threshold in PHRASES_RU.icon.query.thresholds.item():
+    for emoji, threshold in PHRASES_RU.icon.query.thresholds.__dict__.items():
         if count > threshold:
             return emoji
     return PHRASES_RU.icon.query.default
