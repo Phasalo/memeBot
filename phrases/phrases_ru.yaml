@@ -18,9 +18,7 @@ hz_answers:
   - "🤷‍♂️ Не понимаю 🤷‍♀️"
 
 icon:
-  admin: "👑"
-  banned: "💀"
-  not_username: "🐸"
+  not_username: "—"
   query:
     thresholds:
       "🤯": 100
@@ -61,12 +59,16 @@ error:
   unknown: "❓"
 
 title:
-  users: "Всего пользователей: <b>{len_users}</b>\n\n"
+  users: "<b>Пользователи</b>"
   commands: "<b>Доступные команды</b>\n\n"
-  query: "<b>Запросы</b>\n\n"
-  user_query: "История запросов <b>{username}</b>\n\n"
-  all_queries: ""
+  query: "<b>Запросы</b>"
+
+footnote:
+  total: "\n<i>всего: {total}</i>\n\n"
+  user_query: "\n<i>пользователя: {username}</i>\n\n"
+  all_queries: "\n\n"
 
 template:
+  user: "<code>{user_id}</code>{username} <i>{registration_date}</i> {query_stat}\n"
   user_query: "<blockquote>{time}</blockquote> <i>{query}</i>\n\n"
   all_queries: "{username} <blockquote>{time}</blockquote> <i>{query}</i>\n\n"

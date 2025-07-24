@@ -1,7 +1,5 @@
-from typing import Optional
 from aiogram.types import Message
 
-from DB.models import UserModel
 from phrases import PHRASES_RU
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
@@ -93,7 +91,7 @@ async def cmd_query(message: Message, amount: int):
 
         txt = format_string.format_queries_text(
             queries=queries,
-            header_template=PHRASES_RU.title.all_queries,
+            footnote_template=PHRASES_RU.footnote.all_queries,
             line_template=PHRASES_RU.template.all_queries,
             show_username=True
         )

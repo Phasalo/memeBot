@@ -6,7 +6,7 @@ from bot.models import CutMessageCallBack
 
 
 def page_keyboard(action: int, page: int, max_page: int, user_id: int = 0) -> Union[IMarkup, None]:
-    if max_page >= 1:
+    if max_page <= 1:
         return None
 
     no_action = CutMessageCallBack(action=-1).pack()

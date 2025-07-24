@@ -13,10 +13,10 @@ async def get_users(user_id: int, page: int = 1, message_id: Union[int, None] = 
     with UsersTable() as users_db:
         users, pagination = users_db.get_all_users(page, USERS_PER_PAGE)
 
-        txt = format_string.format_user_list(users)
+        txt = format_string.format_user_list(users, pagination)
         reply_markup = inline_keyboards.page_keyboard(action=1,
-                                     page=page,
-                                     max_page=pagination.total_pages)
+                                                      page=page,
+                                                      max_page=pagination.total_pages)
         if message_id:
             await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=txt,
                                         reply_markup=reply_markup)
@@ -37,7 +37,7 @@ async def user_query(user_id: int, user_id_to_find: Union[int, None], page: int 
             queries=queries,
             username=user.username if user else None,
             user_id=user_id_to_find,
-            header_template=PHRASES_RU.title.user_query,
+            footnote_template=PHRASES_RU.footnote.user_query,
             line_template=PHRASES_RU.template.user_query
         )
 
