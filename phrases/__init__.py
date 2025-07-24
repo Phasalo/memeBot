@@ -22,7 +22,7 @@ class Phrases:
         return value
 
     def __getattr__(self, name: str):
-        raise AttributeError(f'<b>Фраза «{name}» не найдена</b>')
+        raise AttributeError(f'Фраза «{name}» не найдена')
 
     def __repr__(self):
         return str(self.__dict__)
