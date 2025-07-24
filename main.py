@@ -32,24 +32,24 @@ logger = logging.getLogger(__name__)
 
 
 async def main() -> None:
-    logger.info("Creating db tables")
+    logger.info('Creating db tables')
     init_database()
 
     dp = Dispatcher()
 
-    logger.info("Including routers")
+    logger.info('Including routers')
     dp.include_router(admin_handlers.router)
     dp.include_router(commands.router)
     dp.include_router(user_handlers.router)
     dp.include_router(callbacks.router)
     dp.include_router(inline_handler.router)
 
-    logger.info("Including middlewares")
+    logger.info('Including middlewares')
     dp.update.middleware(GetUserMiddleware())
     dp.update.middleware(ShadowBanMiddleware())
     dp.message.middleware.register(UserRegistrationMiddleware())
 
-    logger.info("Phasalo Bot Template starting")
+    logger.info('Phasalo Bot Template starting')
     try:
         await dp.start_polling(bot)
     except Exception as e:

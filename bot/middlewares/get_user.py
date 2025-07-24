@@ -19,7 +19,7 @@ class GetUserMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Any:
 
-        user: User = data.get("event_from_user")
+        user: User = data.get('event_from_user')
 
         if user is None:
             return await handler(event, data)
@@ -37,7 +37,7 @@ class GetUserMiddleware(BaseMiddleware):
                     user_row = users_db.add_user(new_user)
                 data.update(user_row=user_row)
         except Exception as e:
-            logger.error(f"Failed to process user {user.id}: {str(e)}", exc_info=True)
-            raise AiogramError(f"User processing failed: {str(e)}") from e
+            logger.error(f'Failed to process user {user.id}: {str(e)}', exc_info=True)
+            raise AiogramError(f'User processing failed: {str(e)}') from e
 
         return await handler(event, data)

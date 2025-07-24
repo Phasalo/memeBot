@@ -22,7 +22,7 @@ class UsersTable(BaseTable):
             registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )''')
         self.conn.commit()
-        self._log("CREATE_TABLE")
+        self._log('CREATE_TABLE')
 
     def add_user(self, user: UserModel) -> UserModel:
         """Добавляет или обновляет пользователя"""
@@ -42,14 +42,14 @@ class UsersTable(BaseTable):
                     WHERE user_id = ?''',
                                     (user.username, user.first_name, user.last_name, user.user_id))
                 self.conn.commit()
-                self._log("UPDATE_USER", user_id=user.user_id)
+                self._log('UPDATE_USER', user_id=user.user_id)
         else:
             self.cursor.execute(f'''
                 INSERT INTO {self.__tablename__} (user_id, username, first_name, last_name, is_admin)
                 VALUES (?, ?, ?, ?, ?)''',
                                 (user.user_id, user.username, user.first_name, user.last_name, int(user.is_admin)))
             self.conn.commit()
-            self._log("ADD_USER", user_id=user.user_id)
+            self._log('ADD_USER', user_id=user.user_id)
 
         return self.get_user(user.user_id)
 
@@ -85,7 +85,7 @@ class UsersTable(BaseTable):
         WHERE user_id = ?''',
                             (user.username, user.first_name, user.last_name, int(user.is_admin), user.user_id))
         self.conn.commit()
-        self._log("UPDATE_USER", user_id=user.user_id)
+        self._log('UPDATE_USER', user_id=user.user_id)
         return self.get_user(user.user_id)
 
     def delete_user(self, user_id: int) -> bool:
@@ -95,7 +95,7 @@ class UsersTable(BaseTable):
         self.conn.commit()
         deleted = self.cursor.rowcount > 0
         if deleted:
-            self._log("DELETE_USER", user_id=user_id)
+            self._log('DELETE_USER', user_id=user_id)
         return deleted
 
     def get_all_users(self, page: int = 1, per_page: int = 10) -> tuple[List[UserModel], Pagination]:
@@ -172,11 +172,11 @@ class UsersTable(BaseTable):
                 (int(is_admin), user_id)
             )
             self.conn.commit()
-            self._log("SET_ADMIN", user_id=user_id, is_admin=is_admin, set_by=set_by)
+            self._log('SET_ADMIN', user_id=user_id, is_admin=is_admin, set_by=set_by)
             return True
         except sqlite3.Error as e:
             self.conn.rollback()
-            self._log("ERROR", error=str(e), action="SET_ADMIN")
+            self._log('ERROR', error=str(e), action='SET_ADMIN')
             return False
 
     def set_ban_status(self, user_id: int, banned_by: int, ban: bool = True) -> bool:
@@ -200,15 +200,15 @@ class UsersTable(BaseTable):
             )
             self.conn.commit()
 
-            action = "BAN" if ban else "UNBAN"
-            log_details = {"user_id": user_id, "status": ban, "banned_by": banned_by}
+            action = 'BAN' if ban else 'UNBAN'
+            log_details = {'user_id': user_id, 'status': ban, 'banned_by': banned_by}
             self._log(action, **log_details)
 
             return True
 
         except sqlite3.Error as e:
             self.conn.rollback()
-            self._log("ERROR", error=str(e), action="SET_BAN_STATUS", user_id=user_id)
+            self._log('ERROR', error=str(e), action='SET_BAN_STATUS', user_id=user_id)
             return False
 
 

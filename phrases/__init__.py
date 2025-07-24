@@ -42,7 +42,7 @@ class Phrases:
             for part in parts:
                 current = getattr(current, part)
         except AttributeError:
-            raise AttributeError(f'Фраза "{phrase_name}" не найдена')
+            raise AttributeError(f'Фраза «{phrase_name}» не найдена')
 
         if isinstance(current, list):
             phrase = choice(current)

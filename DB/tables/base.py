@@ -30,10 +30,10 @@ class BaseTable:
 
     def _log(self, action: str, **kwargs: Any):
         logger.info(
-            "Table='%s', Action='%s', Details: %s",
+            'Table=\'%s\', Action=\'%s\', Details: %s',
             self.__tablename__,
             action,
-            ", ".join(f"{k}={v}" for k, v in kwargs.items()),
+            ', '.join(f'{k}={v}' for k, v in kwargs.items()),
         )
 
     @property

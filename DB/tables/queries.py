@@ -20,7 +20,7 @@ class QueriesTable(BaseTable):
         )''')
         self.cursor.execute(f'CREATE INDEX IF NOT EXISTS idx_user_queries ON {self.__tablename__}(user_id)')
         self.conn.commit()
-        self._log("CREATE_TABLE")
+        self._log('CREATE_TABLE')
 
     def add_query(self, query: QueryModel) -> QueryModel:
         """Добавление нового запроса"""
@@ -29,7 +29,7 @@ class QueriesTable(BaseTable):
         VALUES (?, ?)''', (query.user_id, query.query_text))
         query_id = self.cursor.lastrowid
         self.conn.commit()
-        self._log("ADD_QUERY", query_id=query_id, user_id=query.user_id)
+        self._log('ADD_QUERY', query_id=query_id, user_id=query.user_id)
         return self.get_query(query_id)
 
     def get_query(self, query_id: int) -> Optional[QueryModel]:
@@ -153,7 +153,7 @@ class QueriesTable(BaseTable):
     def get_last_queries(self, amount: int = 5) -> List[QueryModel]:
         """Получение последних запросов"""
         if amount < 0:
-            raise ValueError("Amount cannot be negative")
+            raise ValueError('Amount cannot be negative')
 
         return self.get_all_queries(limit=amount)
 
@@ -163,7 +163,7 @@ class QueriesTable(BaseTable):
         self.conn.commit()
         deleted = self.cursor.rowcount > 0
         if deleted:
-            self._log("DELETE_QUERY", query_id=query_id)
+            self._log('DELETE_QUERY', query_id=query_id)
         return deleted
 
     def delete_user_queries(self, user_id: int) -> int:
@@ -172,5 +172,5 @@ class QueriesTable(BaseTable):
         self.conn.commit()
         deleted_count = self.cursor.rowcount
         if deleted_count > 0:
-            self._log("DELETE_USER_QUERIES", user_id=user_id, count=deleted_count)
+            self._log('DELETE_USER_QUERIES', user_id=user_id, count=deleted_count)
         return deleted_count

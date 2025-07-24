@@ -20,7 +20,7 @@ class UserRegistrationMiddleware(BaseMiddleware):
     ) -> Any:
         if not isinstance(event, Message):
             return await handler(event, data)
-        skip_commands = [f"/{command.name}" for command in BaseRouter.available_commands if command.is_admin]
+        skip_commands = [f'/{command.name}' for command in BaseRouter.available_commands if command.is_admin]
         if event.text and any(event.text.startswith(cmd) for cmd in skip_commands):
             return await handler(event, data)
 
@@ -31,11 +31,11 @@ class UserRegistrationMiddleware(BaseMiddleware):
         #   <-| ----------------- -<phasalo>- ------------------ |->
 
         # например
-        user_row: Union[UserModel, None] = data.get("user_row")
+        user_row: Union[UserModel, None] = data.get('user_row')
         if user_row is None:
             logger.warning(
-                "Cannot add queries. The 'user_row' "
-                "key was not found in the middleware data."
+                'Cannot add queries. The \'user_row\' '
+                'key was not found in the middleware data.'
             )
             return await handler(event, data)
         if event.text:

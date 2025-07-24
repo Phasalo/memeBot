@@ -4,19 +4,20 @@ import logging.handlers
 from dataclasses import dataclass
 from pathlib import Path
 from aiogram import Bot
+from aiogram.client.default import DefaultBotProperties
 from dotenv import load_dotenv, find_dotenv
 from config.const import BASE_DIR
 
 load_dotenv(find_dotenv())
 
-Path(BASE_DIR / "logs").mkdir(exist_ok=True)
+Path(BASE_DIR / 'logs').mkdir(exist_ok=True)
 
 
 @dataclass
 class LogConfig:
-    level: str = "DEBUG"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-    format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    file_path: str = "logs/bot.log"
+    level: str = 'DEBUG'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    format: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    file_path: str = 'logs/bot.log'
     max_size: int = 10  # MB
     backup_count: int = 3
 
@@ -68,6 +69,6 @@ def setup_logging(config: LogConfig):
 
 
 config: Config = load_config()
-bot = Bot(token=config.tg_bot.token, parse_mode="HTML")
+bot = Bot(token=config.tg_bot.token, default=DefaultBotProperties(parse_mode='HTML'))
 
 setup_logging(config.log)
