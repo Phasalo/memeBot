@@ -54,11 +54,12 @@ def format_user_list(users_info: List[UserModel]) -> str:
     for user in users_info:
         emoji = get_query_count_emoji(user.query_count)
         admin_flag = ' 👑 |' if user.is_admin else ''
+        banned = '💀 ' if user.is_banned else ''
         username = f"@{user.username}" if user.username else '🐸'
 
         txt += (
-            f'<b>{username}</b> | <i>{user.user_id}</i> |{admin_flag} '
-            f'{emoji} {user.query_count} [{user.registration_date.strftime("%d.%m.%Y")}]\n'
+            f'<b>{username}</b> {banned}| <i>{user.user_id}</i> |{admin_flag} '
+            f'{emoji} {user.query_count} | {user.registration_date.strftime("%d.%m.%Y")}\n'
         )
     return txt
 

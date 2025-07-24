@@ -1,29 +1,7 @@
-from typing import List
-
-from aiogram import Router
-from aiogram.filters import Command
 from aiogram.types import Message
 
-from bot.models import CommandUnit
 from phrases import PHRASES_RU
 from DB.tables.users import UsersTable
-
-available_commands: List[CommandUnit] = []
-
-
-def cmd(command: str, rt: Router, description: str = ''):
-    """Декоратор для регистрации команд."""
-
-    def decorator(func):
-        is_admin = getattr(rt, 'is_admin', False)
-        available_commands.append(CommandUnit(command, description, is_admin))
-
-        @rt.message(Command(command))
-        async def wrapper(message: Message):
-            await func(message)
-        return func
-
-    return decorator
 
 
 def arguments_command(func):

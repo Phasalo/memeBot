@@ -1,30 +1,29 @@
 from aiogram.types import Message
 
-from bot.routers import UserRouter
+from bot.routers import UserRouter, BaseRouter
 from config import Config, load_config
 from phrases import PHRASES_RU
-from bot.decorators import cmd, available_commands
 
 router = UserRouter()
 config: Config = load_config()
 
 
-@cmd('start', router)                               # /start
+@router.cmd('start')                               # /start
 async def process_start_command(message: Message):
     await message.answer(PHRASES_RU.commands.start)
 
 
-@cmd('help', router)                                # /help
+@router.cmd('help')                                # /help
 async def process_help_command(message: Message):
     await message.answer(PHRASES_RU.commands.help)
 
 
-@cmd('about', router)                               # /about
+@router.cmd('about')                               # /about
 async def process_about_command(message: Message):
     await message.answer(PHRASES_RU.commands.about)
 
 
-@cmd('commands', router)                             # /commands
-async def process_getcmds_command(message: Message):
-    commands_text = "\n".join(command.__str__() for command in available_commands if not command.is_admin)
+@router.cmd('commands')                             # /commands
+async def process_commands_command(message: Message):
+    commands_text = "\n".join(command.__str__() for command in BaseRouter.available_commands if not command.is_admin)
     await message.answer(PHRASES_RU.title.commands + commands_text)

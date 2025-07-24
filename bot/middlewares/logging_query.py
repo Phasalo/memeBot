@@ -5,7 +5,7 @@ from aiogram.types import Message, TelegramObject
 
 from DB.tables.queries import QueriesTable
 from DB.models import UserModel as UserModel, QueryModel
-from bot.decorators import available_commands
+from bot.routers import BaseRouter
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class UserRegistrationMiddleware(BaseMiddleware):
     ) -> Any:
         if not isinstance(event, Message):
             return await handler(event, data)
-        skip_commands = [f"/{command.name}" for command in available_commands if command.is_admin]
+        skip_commands = [f"/{command.name}" for command in BaseRouter.available_commands if command.is_admin]
         if event.text and any(event.text.startswith(cmd) for cmd in skip_commands):
             return await handler(event, data)
 
