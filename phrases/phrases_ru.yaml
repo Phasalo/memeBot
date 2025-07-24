@@ -31,12 +31,14 @@ icon:
 
 info:
   no_query: "Запросов не было"
+  admin_commands: "<i>Благородные патриции\n</i>"
+  user_commands: "<i>Челядь\n</i>"
 
 button:
   next_page: ">"
   past_page: "<"
 
-placeholder_appeal: 'PhasaloBotTemplate'
+placeholder_appeal: "PhasaloBotTemplate"
 
 success:
   demoted: "Уровень доступа пользователя <i>{user_id}</i> понижен"

@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from typing import Tuple, Optional, Any
+
 from phrases import PHRASES_RU
 from aiogram.filters.callback_data import CallbackData
 
@@ -9,13 +11,15 @@ class CommandUnit:
     name: str
     description: str
     is_admin: bool
+    placeholders: Optional[Tuple[Any]] = None
 
     def __str__(self):
         command = f'/{self.name}'
+        if self.placeholders:
+            for placeholder in self.placeholders:
+                command += f' {{{placeholder}}}'
         if self.description:
             command += f' — {self.description}'
-        if self.is_admin:
-            command += f' {PHRASES_RU.icon.admin}'
         return command
 
 

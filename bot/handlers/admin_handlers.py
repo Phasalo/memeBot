@@ -1,6 +1,7 @@
 from typing import Optional
 from aiogram.types import Message
 
+from DB.models import UserModel
 from phrases import PHRASES_RU
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
@@ -11,18 +12,26 @@ from bot.routers import AdminRouter, BaseRouter
 router = AdminRouter()
 
 
-@router.command('get_users', 'таблица со всем пользователями')      # /get_users
+@router.command('get_users', 'таблица со всем пользователями')          # /get_users
 async def _(message: Message):
     await pages.get_users(message.from_user.id)
 
 
-@router.command('getcmds', 'список всех доступных команд')          # /getcmds
+@router.command('getcmds', 'список всех доступных команд')              # /getcmds
 async def _(message: Message):
-    commands_text = '\n'.join(str(command) for command in BaseRouter.available_commands)
-    await message.answer(PHRASES_RU.title.commands + commands_text)
+    commands_text = PHRASES_RU.title.commands
+    admin_commands = '\n'.join(str(command) for command in BaseRouter.available_commands if command.is_admin)
+    if admin_commands:
+        commands_text += PHRASES_RU.info.admin_commands + admin_commands + '\n\n'
+    user_commands = '\n'.join(str(command) for command in BaseRouter.available_commands if not command.is_admin)
+    if user_commands:
+        commands_text += PHRASES_RU.info.user_commands + user_commands
+    await message.answer(commands_text)
 
 
-@router.command('ban', 'заблокировать пользователя по ID')          # /ban
+@router.command('ban',
+                'заблокировать пользователя по ID',
+                'user_id')                                              # /ban
 @command_arguments.user_id
 async def _(message: Message, user_id):
     if message.from_user.id == int(user_id):
@@ -35,7 +44,9 @@ async def _(message: Message, user_id):
             await message.answer(PHRASES_RU.error.db)
 
 
-@router.command('unban', 'разблокировать пользователя по ID')       # /unban
+@router.command('unban',
+                'разблокировать пользователя по ID',
+                'user_id')                                              # /unban
 @command_arguments.user_id
 async def _(message: Message, user_id):
     with UsersTable() as user_db:
@@ -45,7 +56,9 @@ async def _(message: Message, user_id):
             await message.answer(PHRASES_RU.error.db)
 
 
-@router.command('promote', 'повышает уровень доступа пользователя') # /promote
+@router.command('promote',
+                'повышает уровень доступа пользователя',
+                'user_id')                                              # /promote
 @command_arguments.user_id
 async def _(message: Message, user_id):
     with UsersTable() as users_db:
@@ -55,7 +68,9 @@ async def _(message: Message, user_id):
             await message.answer(PHRASES_RU.error.db)
 
 
-@router.command('demote', 'понижает уровень доступа пользователя')  # /demote
+@router.command('demote',
+                'понижает уровень доступа пользователя',
+                'user_id')                                              # /demote
 @command_arguments.user_id
 async def _(message: Message, user_id):
     with UsersTable() as users_db:
@@ -65,7 +80,9 @@ async def _(message: Message, user_id):
             await message.answer(PHRASES_RU.error.db)
 
 
-@router.command('query', 'последние N запросов')                    # /query
+@router.command('query',
+                'последние N запросов',
+                'N')                                                    # /query
 @command_arguments.digit(default=5)
 async def cmd_query(message: Message, amount: int):
     with QueriesTable() as queries_db:
@@ -85,12 +102,14 @@ async def cmd_query(message: Message, amount: int):
             await message.answer(txt.replace('\t', '\n'), disable_web_page_preview=True)
 
 
-@router.command('user_query', 'запросы пользователя по ID')         # /user_query
+@router.command('user_query',
+                'запросы пользователя по ID',
+                'user_id')                                              # /user_query
 @command_arguments.user_id
 async def cmd_user_query(message: Message, user_id: int):
     await pages.user_query(message.from_user.id, user_id)
 
 
-@router.command('test', 'отладка и тестирование функций')           # /test
+@router.command('test', 'отладка и тестирование функций')               # /test
 async def _(message: Message):
-    await message.answer(PHRASES_RU.template.user_query)
+    pass

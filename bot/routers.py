@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -16,9 +16,9 @@ class BaseRouter(Router):
         if self.is_admin:
             self.message.filter(AdminFilter())
 
-    def command(self, command: str, description: str = ''):
+    def command(self, command: str, description: str = '', *placeholders):
         def decorator(handler):
-            self.available_commands.append(CommandUnit(command, description, self.is_admin))
+            self.available_commands.append(CommandUnit(command, description, self.is_admin, placeholders if placeholders else None))
 
             @self.message(Command(command))
             async def wrapper(message: Message):
