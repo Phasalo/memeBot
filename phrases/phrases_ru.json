@@ -43,13 +43,22 @@
     "user_admin":             "⚠️ Пользователь админ",
     "user_not_admin":         "⚠️ Пользователь не админ",
 
-    "ban_yourself":           "⚠️ Нельзя заблокировать самого себя"
+    "ban_yourself":           "⚠️ Нельзя заблокировать самого себя",
+
+    "no_query":               "⚠️ Пользователь не отправлял запросы"
   },
 
   "title": {
-    "users": "<b>Пользователи</b>\n\n",
+    "users": "Всего пользователей: <b>{len_users}</b>\n\n",
     "commands": "<b>Доступные команды</b>\n\n",
-    "query": "<b>Запросы</b>\n\n"
+    "query": "<b>Запросы</b>\n\n",
+    "user_query": "История запросов <b>{username}</b>\n\n",
+    "all_queries": ""
+  },
+
+  "template": {
+    "user_query": "<blockquote>{time}</blockquote> <i>{query}</i>\n\n",
+    "all_queries": "{username} <blockquote>{time}</blockquote> <i>{query}</i>\n\n"
   },
 
   "footnote": {

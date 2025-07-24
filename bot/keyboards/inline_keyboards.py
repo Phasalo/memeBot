@@ -4,6 +4,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
 from config import config, bot
+from phrases import PHRASES_RU
 from utils import format_string
 from bot.models import CutMessageCallBack
 
@@ -26,7 +27,7 @@ async def user_query_by_page(user_id: int, user_id_to_find: Union[int, None], pa
     with QueriesTable() as queries_db, UsersTable() as users_db:
         queries = queries_db.get_user_queries(user_id_to_find)
         if not user_id_to_find or not queries:
-            await bot.send_message(chat_id=user_id, text='Неправильный <i>user_id</i> или этот пользователь не отправлял запросы')
+            await bot.send_message(chat_id=user_id, text=PHRASES_RU.error.no_query)
             return
 
         user = users_db.get_user(user_id_to_find)
@@ -34,8 +35,8 @@ async def user_query_by_page(user_id: int, user_id_to_find: Union[int, None], pa
             queries=queries,
             username=user.username if user else None,
             user_id=user_id_to_find,
-            header_template="История запросов <b>{username}</b>\n\n",
-            line_template="<blockquote>{time}</blockquote> <i>{query}</i>\n\n"
+            header_template=PHRASES_RU.title.user_query,
+            line_template=PHRASES_RU.template.user_query
         )
 
         pages = format_string.split_text(txt, config.tg_bot.message_max_symbols)
