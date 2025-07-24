@@ -5,7 +5,7 @@ from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
 from config import config, bot
 from utils import format_string
-from bot.handlers.callbacks_data import CutMessageCallBack
+from bot.models import CutMessageCallBack
 
 
 async def get_users_by_page(user_id: int, page: int = 1, message_id: Union[int, None] = None):

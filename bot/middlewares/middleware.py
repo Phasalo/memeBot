@@ -1,10 +1,10 @@
 import logging
 from aiogram import BaseMiddleware
-from typing import Callable, Dict, Any, Awaitable
+from typing import Callable, Dict, Any, Awaitable, Union
 from aiogram.types import Message, TelegramObject
 
 from DB.tables.queries import QueriesTable
-from config.models import User as UserModel, Query
+from DB.models import UserModel as UserModel, QueryModel
 from bot.decorators import available_commands
 
 
@@ -31,7 +31,7 @@ class UserRegistrationMiddleware(BaseMiddleware):
         #   <-| ----------------- -<phasalo>- ------------------ |->
 
         # например
-        user_row: UserModel | None = data.get("user_row")
+        user_row: Union[UserModel, None] = data.get("user_row")
         if user_row is None:
             logger.warning(
                 "Cannot add queries. The 'user_row' "
@@ -40,7 +40,7 @@ class UserRegistrationMiddleware(BaseMiddleware):
             return await handler(event, data)
         if event.text:
             with QueriesTable() as queries_db:
-                queries_db.add_query(Query(user_row.user_id, event.text))
+                queries_db.add_query(QueryModel(user_row.user_id, event.text))
         #
 
         return await handler(event, data)

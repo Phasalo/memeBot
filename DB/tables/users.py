@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from DB.tables.base import BaseTable
-from config.models import User
+from bot.models import User
 
 
 class UsersTable(BaseTable):
@@ -18,7 +18,7 @@ class UsersTable(BaseTable):
             first_name TEXT,
             last_name TEXT,
             is_admin BOOLEAN NOT NULL DEFAULT 0,
-            banned BOOLEAN NOT NULL DEFAULT 0,
+            is_banned BOOLEAN NOT NULL DEFAULT 0,
             registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )''')
         self.conn.commit()
@@ -53,10 +53,13 @@ class UsersTable(BaseTable):
 
         return self.get_user(user.user_id)
 
+    def is_exists(self, user_id: int) -> bool:
+        self.cursor.execute(f'SELECT COUNT(*) FROM {self.__tablename__} WHERE id = ?', (user_id,))
+        return self.cursor.fetchone()[0] > 0
+
     def get_user(self, user_id: int) -> Optional[User]:
         """Получение пользователя по ID"""
-        self.cursor.execute(f'''
-        SELECT * FROM {self.__tablename__} WHERE user_id = ?''', (user_id,))
+        self.cursor.execute(f'SELECT * FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
         row = self.cursor.fetchone()
         if row:
             return User(
@@ -65,7 +68,7 @@ class UsersTable(BaseTable):
                 first_name=row['first_name'],
                 last_name=row['last_name'],
                 is_admin=bool(row['is_admin']),
-                banned=bool(row['banned']),
+                is_banned=bool(row['is_banned']),
                 registration_date=(
                     datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                     if row['registration_date']
@@ -100,7 +103,7 @@ class UsersTable(BaseTable):
         self.cursor.execute('''
             SELECT 
                 u.user_id, u.username, u.first_name, u.last_name, 
-                u.is_admin, u.banned, u.registration_date,
+                u.is_admin, u.is_banned, u.registration_date,
                 COUNT(q.query_id) as query_count
             FROM users u
             LEFT JOIN queries q ON u.user_id = q.user_id
@@ -113,7 +116,7 @@ class UsersTable(BaseTable):
             first_name=row['first_name'],
             last_name=row['last_name'],
             is_admin=bool(row['is_admin']),
-            banned=bool(row['banned']),
+            is_banned=bool(row['is_banned']),
             registration_date=(
                 datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                 if row['registration_date']
@@ -131,7 +134,7 @@ class UsersTable(BaseTable):
             first_name=row['first_name'],
             last_name=row['last_name'],
             is_admin=True,
-            banned=bool(row['banned']),
+            is_banned=bool(row['is_banned']),
             registration_date=(
                 datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                 if row['registration_date']
@@ -174,7 +177,7 @@ class UsersTable(BaseTable):
                 return False
 
             self.cursor.execute(
-                f'UPDATE {self.__tablename__} SET banned = ? WHERE user_id = ?',
+                f'UPDATE {self.__tablename__} SET is_banned = ? WHERE user_id = ?',
                 (int(ban), user_id)
             )
             self.conn.commit()

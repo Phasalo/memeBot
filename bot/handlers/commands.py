@@ -2,7 +2,7 @@ from aiogram.types import Message
 
 from bot.routers import UserRouter
 from config import Config, load_config
-from DB.phrases.phrases import PHRASES_RU
+from DB.phrases import PHRASES_RU
 from bot.decorators import cmd, available_commands
 
 router = UserRouter()
@@ -26,7 +26,5 @@ async def process_about_command(message: Message):
 
 @cmd('commands', router)                             # /commands
 async def process_getcmds_command(message: Message):
-    commands_text = "\n".join(
-        command.__str__() for command in available_commands if not command.is_admin
-    )
-    await message.answer(f"<b>📜 Доступные команды:</b>\n\n{commands_text}")
+    commands_text = "\n".join(command.__str__() for command in available_commands if not command.is_admin)
+    await message.answer(PHRASES_RU.title.commands + commands_text)

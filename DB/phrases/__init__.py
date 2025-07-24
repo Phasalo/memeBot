@@ -6,6 +6,7 @@ import re
 
 
 class Phrases:
+    """Класс для представления"""
     def __init__(self, dictionary: Dict[str, Any]):
         for key, value in dictionary.items():
             if isinstance(value, dict):
@@ -26,7 +27,7 @@ class Phrases:
     def __repr__(self):
         return str(self.__dict__)
 
-    def get(self, phrase_name: str, **replacements: Any) -> str:
+    def replace(self, phrase_name: str, **replacements: Any) -> str:
         """
         Получает фразу с заменой плейсхолдеров
 

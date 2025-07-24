@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from DB.tables.base import BaseTable
-from config.models import User, Query
+from bot.models import User, Query
 
 
 class QueriesTable(BaseTable):

@@ -1,6 +1,6 @@
 import re
 from typing import List, Optional
-from config.models import User, Query
+from bot.models import User, Query
 
 
 def clear_string(text: str):
@@ -13,7 +13,7 @@ def find_first_number(input_string):
     match = re.search(r'\d+', input_string)
 
     if match:
-        return match.group()
+        return int(match.group())
     else:
         return None
 
