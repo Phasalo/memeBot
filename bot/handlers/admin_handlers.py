@@ -67,9 +67,7 @@ async def _(message: Message, user_id):
 
 @router.command('query', 'последние N запросов')                    # /query
 @command_arguments.digit(default=5)
-async def cmd_query(message: Message, amount: Optional[int]):
-    amount = 5 if not amount else amount
-
+async def cmd_query(message: Message, amount: int):
     with QueriesTable() as queries_db:
         queries = queries_db.get_last_queries(int(amount))
         if not queries:
