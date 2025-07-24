@@ -17,7 +17,19 @@
   ],
 
   "icon": {
-    "admin": "\uD83D\uDC51"
+    "admin": "\uD83D\uDC51",
+    "banned": "💀",
+    "not_username": "🐸",
+
+    "query": {
+      "thresholds": {
+        "🤯": 100,
+        "🔥": 50,
+        "😮": 10,
+        "😎": 5
+      },
+      "default": "🐥"
+    }
   },
 
   "info": {

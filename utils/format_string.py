@@ -1,6 +1,7 @@
 import re
 from typing import List, Optional
 from DB.models import UserModel, QueryModel
+from phrases import PHRASES_RU
 
 
 def clear_string(text: str):
@@ -42,11 +43,10 @@ def split_text(text, n):
 
 
 def get_query_count_emoji(count: int) -> str:
-    if count > 100:
-        return '🤯'
-    elif count > 5:
-        return '😎'
-    return '🐥'
+    for emoji, threshold in PHRASES_RU.icon.query.thresholds.item():
+        if count > threshold:
+            return emoji
+    return PHRASES_RU.icon.query.default
 
 
 def format_user_list(users_info: List[UserModel]) -> str:
