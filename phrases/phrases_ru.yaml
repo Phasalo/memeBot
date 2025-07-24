@@ -55,6 +55,8 @@ error:
   user_not_admin: "⚠️ Пользователь не админ"
   ban_yourself: "⚠️ Нельзя заблокировать самого себя"
   no_query: "⚠️ Пользователь не отправлял запросы"
+  not_text: "⬛️"
+  unknown: "❓"
 
 title:
   users: "Всего пользователей: <b>{len_users}</b>\n\n"

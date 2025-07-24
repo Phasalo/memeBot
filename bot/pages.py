@@ -1,33 +1,63 @@
-from aiogram.types import Message, CallbackQuery
-from typing import Union, Callable, Any
-from math import ceil
+from typing import Union
 from phrases import PHRASES_RU
 
+from DB.tables.queries import QueriesTable
+from DB.tables.users import UsersTable
+from config import bot
+from config.const import USERS_PER_PAGE, QUERIES_PER_PAGE
+from utils import format_string
+from bot.keyboards import inline_keyboards
 
-# async def __make_page(event: Union[Message, CallbackQuery],
-#                       title: str,
-#                       database: Database,
-#                       row_processor: Callable[[Any], str],
-#                       page_size: int,
-#                       page_number: int):
-#     """Генератор страниц"""
-#     if isinstance(event, CallbackQuery):
-#         await event.answer()
-#
-#     page = database.get_by_page(page_number, page_size)
-#     max_page_number = ceil(database.count() / page_size)
-#     msg_text = [title]
-#
-#     for i, row in enumerate(page):
-#         if i < len(page):
-#             msg_text.append(row_processor(*row))
-#
-#     msg_text.append(PHRASES_RU.get('footnote.page', page_number=page_number, max_page_number=max_page_number))
-#
-#     msg_text = ''.join(msg_text)
-#     page_kb = kb.make_page(page_number, max_page_number)
-#
-#     if isinstance(event, Message):
-#         await event.answer(text=msg_text, reply_markup=page_kb)
-#     else:
-#         await event.message.edit_text(text=msg_text, reply_markup=page_kb)
+
+async def get_users(user_id: int, page: int = 1, message_id: Union[int, None] = None):
+    with UsersTable() as users_db:
+        users, pagination = users_db.get_all_users(page, USERS_PER_PAGE)
+
+        txt = format_string.format_user_list(users)
+        reply_markup = inline_keyboards.page_keyboard(action=1,
+                                     page=page,
+                                     max_page=pagination.total_pages)
+        if message_id:
+            await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=txt,
+                                        reply_markup=reply_markup)
+        else:
+            await bot.send_message(chat_id=user_id, text=txt, reply_markup=reply_markup)
+
+
+async def user_query(user_id: int, user_id_to_find: Union[int, None], page: int = 1, message_id: Union[int, None] = None):
+    with QueriesTable() as queries_db, UsersTable() as users_db:
+        queries, pagination = queries_db.get_user_queries(user_id_to_find, page, QUERIES_PER_PAGE)
+        if not user_id_to_find or not queries:
+            await bot.send_message(chat_id=user_id, text=PHRASES_RU.error.no_query)
+            return
+
+        user = users_db.get_user(user_id_to_find)
+
+        txt = format_string.format_queries_text(
+            queries=queries,
+            username=user.username if user else None,
+            user_id=user_id_to_find,
+            header_template=PHRASES_RU.title.user_query,
+            line_template=PHRASES_RU.template.user_query
+        )
+
+        reply_markup = inline_keyboards.page_keyboard(
+            action=2,
+            page=page,
+            max_page=pagination.total_pages,
+            user_id=user_id_to_find
+        )
+
+        if message_id:
+            await bot.edit_message_text(
+                chat_id=user_id,
+                message_id=message_id,
+                text=txt,
+                reply_markup=reply_markup
+            )
+        else:
+            await bot.send_message(
+                chat_id=user_id,
+                text=txt,
+                reply_markup=reply_markup
+            )

@@ -5,8 +5,7 @@ from phrases import PHRASES_RU
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
 from utils import format_string
-from bot import command_arguments
-from bot.keyboards import inline_keyboards as ikb
+from bot import command_arguments, pages
 from bot.routers import AdminRouter, BaseRouter
 
 router = AdminRouter()
@@ -14,7 +13,7 @@ router = AdminRouter()
 
 @router.command('get_users', 'таблица со всем пользователями')      # /get_users
 async def _(message: Message):
-    await ikb.get_users_by_page(message.from_user.id)
+    await pages.get_users(message.from_user.id)
 
 
 @router.command('getcmds', 'список всех доступных команд')          # /getcmds
@@ -91,7 +90,7 @@ async def cmd_query(message: Message, amount: Optional[int]):
 @router.command('user_query', 'запросы пользователя по ID')         # /user_query
 @command_arguments.user_id
 async def cmd_user_query(message: Message, user_id: int):
-    await ikb.user_query_by_page(message.from_user.id, user_id)
+    await pages.user_query(message.from_user.id, user_id)
 
 
 @router.command('test', 'отладка и тестирование функций')           # /test

@@ -6,8 +6,8 @@ from phrases import PHRASES_RU
 
 def clear_string(text: str):
     if not text:
-        return '⬛️'
-    return text.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;")
+        return PHRASES_RU.icon.not_text
+    return text.replace('<', '&lt;').replace('>', '&gt;').replace('&', '&amp;')
 
 
 def find_first_number(input_string):
@@ -17,29 +17,6 @@ def find_first_number(input_string):
         return int(match.group())
     else:
         return None
-
-
-def split_text(text, n):
-    result = []
-    lines = text.split('\n')
-    current_chunk = ''
-    current_length = 0
-
-    for line in lines:
-        if len(current_chunk) + len(line) + 1 <= n:  # Check if adding the line and '\n' fits in the chunk
-            if current_chunk:  # Add '\n' if it's not the first line in the chunk
-                current_chunk += '\n'
-            current_chunk += line
-            current_length += len(line) + 1
-        else:
-            result.append(current_chunk)
-            current_chunk = line
-            current_length = len(line)
-
-    if current_chunk:
-        result.append(current_chunk)
-
-    return result
 
 
 def get_query_count_emoji(count: int) -> str:
@@ -53,9 +30,9 @@ def format_user_list(users_info: List[UserModel]) -> str:
     txt = PHRASES_RU.replace('title.users', len_users=len(users_info))
     for user in users_info:
         emoji = get_query_count_emoji(user.query_count)
-        admin_flag = ' 👑 |' if user.is_admin else ''
-        banned = '💀 ' if user.is_banned else ''
-        username = f"@{user.username}" if user.username else '🐸'
+        admin_flag = f' {PHRASES_RU.icon.admin} |' if user.is_admin else ''
+        banned = f'{PHRASES_RU.icon.banned} ' if user.is_banned else ''
+        username = f"@{user.username}" if user.username else PHRASES_RU.icon.not_username
 
         txt += (
             f'<b>{username}</b> {banned}| <i>{user.user_id}</i> |{admin_flag} '
@@ -86,11 +63,11 @@ def format_queries_text(
     Returns:
         Отформатированная строка с историей запросов
     """
-    username_display = f"@{username}" if username else (str(user_id) if user_id else "❓")
+    username_display = f"@{username}" if username else (str(user_id) if user_id else PHRASES_RU.error.unknown)
     txt = header_template.format(username=username_display)
 
     for query in queries:
-        query_time = query.query_date.strftime("%d.%m.%Y %H:%M:%S") if query.query_date else '❓'
+        query_time = query.query_date.strftime("%d.%m.%Y %H:%M:%S") if query.query_date else PHRASES_RU.error.unknown
         user_query = clear_string(query.query_text).replace("\n", "\t")
         line_data = {
             'time': query_time,

@@ -51,7 +51,7 @@ class Phrases:
 
         # Заменяем все плейсхолдеры вида {key}
         for key, value in replacements.items():
-            pattern = re.compile(r'\{\s*' + re.escape(key) + r'\s*\}')
+            pattern = re.compile(r'\{\s*' + re.escape(key) + r'\s*}')
             phrase = pattern.sub(str(value), phrase)
 
         return phrase
