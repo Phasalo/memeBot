@@ -32,6 +32,10 @@ icon:
 info:
   no_query: "Запросов не было"
 
+button:
+  next_page: ">"
+  past_page: "<"
+
 success:
   demoted: "Уровень доступа пользователя <i>{user_id}</i> понижен"
   promoted_by: "Уровень доступа пользователя <i>{user_id}</i> повышен"
