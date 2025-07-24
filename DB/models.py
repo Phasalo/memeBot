@@ -33,3 +33,23 @@ class QueryModel:
     query_id: Optional[int] = None
     query_date: Optional[datetime] = None
     user: Optional[UserModel] = None
+
+
+@dataclass
+class Pagination:
+    page: int
+    per_page: int
+    total_items: int
+    total_pages: int
+
+    @property
+    def has_prev(self) -> bool:
+        return self.page > 1
+
+    @property
+    def has_next(self) -> bool:
+        return self.page < self.total_pages
+
+    @property
+    def offset(self) -> int:
+        return (self.page - 1) * self.per_page

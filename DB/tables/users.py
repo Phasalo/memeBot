@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from DB.tables.base import BaseTable
-from DB.models import UserModel
+from DB.models import UserModel, Pagination
 
 
 class UsersTable(BaseTable):
@@ -98,8 +98,16 @@ class UsersTable(BaseTable):
             self._log("DELETE_USER", user_id=user_id)
         return deleted
 
-    def get_all_users(self) -> List[UserModel]:
-        """Получение всех пользователей"""
+    def get_all_users(self, page: int = 1, per_page: int = 10) -> tuple[List[UserModel], Pagination]:
+        """Получение пользователей с постраничной навигацией"""
+
+        pagination = Pagination(
+            page=page,
+            per_page=per_page,
+            total_items=0,  # Будет обновлено после запроса
+            total_pages=0   # -//-
+        )
+
         self.cursor.execute('''
             SELECT 
                 u.user_id, u.username, u.first_name, u.last_name, 
@@ -109,8 +117,10 @@ class UsersTable(BaseTable):
             LEFT JOIN queries q ON u.user_id = q.user_id
             GROUP BY u.user_id
             ORDER BY u.registration_date DESC
-        ''')
-        return [UserModel(
+            LIMIT ? OFFSET ?
+        ''', (pagination.per_page, pagination.offset))
+
+        users = [UserModel(
             user_id=row['user_id'],
             username=row['username'],
             first_name=row['first_name'],
@@ -123,6 +133,14 @@ class UsersTable(BaseTable):
                 else None),
             query_count=row['query_count']
         ) for row in self.cursor]
+
+        self.cursor.execute('SELECT COUNT(*) as total FROM users')
+        total_users = self.cursor.fetchone()['total']
+
+        pagination.total_items = total_users
+        pagination.total_pages = (total_users + per_page - 1) // per_page
+
+        return users, pagination
 
     def get_admins(self) -> List[UserModel]:
         """Получение администраторов"""
@@ -196,5 +214,7 @@ class UsersTable(BaseTable):
 
 if __name__ == '__main__':
     with UsersTable() as users_db:
-        for user in users_db.get_all_users():
+        users, info = users_db.get_all_users(1, 100)
+        for user in users:
             print(user.__dict__)
+        print(info.__dict__)

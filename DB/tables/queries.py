@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from DB.tables.base import BaseTable
-from DB.models import UserModel, QueryModel
+from DB.models import UserModel, QueryModel, Pagination
 
 
 class QueriesTable(BaseTable):
@@ -63,23 +63,28 @@ class QueriesTable(BaseTable):
             )
         return None
 
-    def get_user_queries(self, user_id: int, limit: Optional[int] = None) -> List[QueryModel]:
-        """Получение запросов пользователя"""
-        query = f'''
-        SELECT q.query_id, q.user_id, q.query_text, q.query_date,
-               u.username, u.first_name, u.last_name, u.is_admin
-        FROM {self.__tablename__} q
-        LEFT JOIN users u ON q.user_id = u.user_id
-        WHERE q.user_id = ?
-        ORDER BY q.query_date DESC'''
+    def get_user_queries(self, user_id: int, page: int = 1, per_page: int = 10) -> tuple[List[QueryModel], Pagination]:
+        """Получение запросов пользователя с постраничной навигацией"""
 
-        params = (user_id,)
-        if limit:
-            query += ' LIMIT ?'
-            params = (user_id, limit)
+        pagination = Pagination(
+            page=page,
+            per_page=per_page,
+            total_items=0,
+            total_pages=0
+        )
 
-        self.cursor.execute(query, params)
-        return [
+        self.cursor.execute(f'''
+            SELECT 
+                q.query_id, q.user_id, q.query_text, q.query_date,
+                u.username, u.first_name, u.last_name, u.is_admin
+            FROM {self.__tablename__} q
+            LEFT JOIN users u ON q.user_id = u.user_id
+            WHERE q.user_id = ?
+            ORDER BY q.query_date DESC
+            LIMIT ? OFFSET ?
+        ''', (user_id, pagination.per_page, pagination.offset))
+
+        queries = [
             QueryModel(
                 query_id=row['query_id'],
                 user_id=row['user_id'],
@@ -98,6 +103,17 @@ class QueriesTable(BaseTable):
                 )
             ) for row in self.cursor
         ]
+
+        self.cursor.execute(
+            f'SELECT COUNT(*) as total FROM {self.__tablename__} WHERE user_id = ?',
+            (user_id,)
+        )
+        total_queries = self.cursor.fetchone()['total']
+
+        pagination.total_items = total_queries
+        pagination.total_pages = (total_queries + per_page - 1) // per_page
+
+        return queries, pagination
 
     def get_all_queries(self, limit: Optional[int] = None) -> List[QueryModel]:
         """Получение всех запросов"""

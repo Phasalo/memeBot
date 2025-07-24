@@ -3,29 +3,31 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
-from config import config, bot
+from config import bot
 from phrases import PHRASES_RU
 from utils import format_string
 from bot.models import CutMessageCallBack
+from config.const import USERS_PER_PAGE, QUERIES_PER_PAGE
 
 
 async def get_users_by_page(user_id: int, page: int = 1, message_id: Union[int, None] = None):
     with UsersTable() as users_db:
-        users_info = users_db.get_all_users()
+        users, pagination = users_db.get_all_users(page, USERS_PER_PAGE)
 
-        txt = format_string.format_user_list(users_info)
-        pages = format_string.split_text(txt, config.tg_bot.message_max_symbols)
-
+        txt = format_string.format_user_list(users)
+        reply_markup = page_keyboard(action=1,
+                                     page=page,
+                                     max_page=pagination.total_pages)
         if message_id:
-            await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=pages[page - 1],
-                                        reply_markup=page_keyboard(action=1, page=page, max_page=len(pages)))
+            await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=txt,
+                                        reply_markup=reply_markup)
         else:
-            await bot.send_message(chat_id=user_id, text=pages[page - 1], reply_markup=page_keyboard(action=1, page=page, max_page=len(pages)))
+            await bot.send_message(chat_id=user_id, text=txt, reply_markup=reply_markup)
 
 
 async def user_query_by_page(user_id: int, user_id_to_find: Union[int, None], page: int = 1, message_id: Union[int, None] = None):
     with QueriesTable() as queries_db, UsersTable() as users_db:
-        queries = queries_db.get_user_queries(user_id_to_find)
+        queries, pagination = queries_db.get_user_queries(user_id_to_find, page, QUERIES_PER_PAGE)
         if not user_id_to_find or not queries:
             await bot.send_message(chat_id=user_id, text=PHRASES_RU.error.no_query)
             return
@@ -39,15 +41,14 @@ async def user_query_by_page(user_id: int, user_id_to_find: Union[int, None], pa
             line_template=PHRASES_RU.template.user_query
         )
 
-        pages = format_string.split_text(txt, config.tg_bot.message_max_symbols)
         reply_markup = page_keyboard(
             action=2,
             page=page,
-            max_page=len(pages),
+            max_page=pagination.total_pages,
             user_id=user_id_to_find
         )
 
-        text_to_send = pages[page - 1].replace('\t', '\n')
+        text_to_send = txt.replace('\t', '\n')
         if message_id:
             await bot.edit_message_text(
                 chat_id=user_id,
@@ -63,20 +64,24 @@ async def user_query_by_page(user_id: int, user_id_to_find: Union[int, None], pa
             )
 
 
-def page_keyboard(action: int, page: int, max_page: int, user_id: int = 0):
-    array_buttons: list[list[InlineKeyboardButton]] = [[]]
-    if page > 1:
-        array_buttons[0].append(
-            InlineKeyboardButton(text='<', callback_data=CutMessageCallBack(action=action, page=page - 1, user_id=user_id).pack())
-        )
-    array_buttons[0].append(
-        InlineKeyboardButton(text=str(page), callback_data=CutMessageCallBack(action=-1).pack())
-    )
-    if page < max_page:
-        array_buttons[0].append(
-            InlineKeyboardButton(text='>', callback_data=CutMessageCallBack(action=action, page=page + 1, user_id=user_id).pack())
-        )
-    if len(array_buttons[0]) == 1:
+def page_keyboard(action: int, page: int, max_page: int, user_id: int = 0) -> InlineKeyboardMarkup | None:
+    if max_page == 1:
         return None
-    markup = InlineKeyboardMarkup(inline_keyboard=array_buttons)
-    return markup
+
+    no_action = CutMessageCallBack(action=-1).pack()
+
+    prev_btn = InlineKeyboardButton(
+        text='<',
+        callback_data=CutMessageCallBack(action=action, page=page - 1, user_id=user_id).pack()
+    ) if page > 1 else InlineKeyboardButton(text=' ', callback_data=no_action)
+
+    next_btn = InlineKeyboardButton(
+        text='>',
+        callback_data=CutMessageCallBack(action=action, page=page + 1, user_id=user_id).pack()
+    ) if page < max_page else InlineKeyboardButton(text=' ', callback_data=no_action)
+
+    return InlineKeyboardMarkup(inline_keyboard=[[
+        prev_btn,
+        InlineKeyboardButton(text=str(page), callback_data=no_action),
+        next_btn
+    ]])
