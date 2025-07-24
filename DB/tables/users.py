@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from DB.tables.base import BaseTable
-from bot.models import User
+from DB.models import UserModel
 
 
 class UsersTable(BaseTable):
@@ -24,7 +24,7 @@ class UsersTable(BaseTable):
         self.conn.commit()
         self._log("CREATE_TABLE")
 
-    def add_user(self, user: User) -> User:
+    def add_user(self, user: UserModel) -> UserModel:
         """Добавляет или обновляет пользователя"""
         existing_user = self.get_user(user.user_id)
 
@@ -54,15 +54,15 @@ class UsersTable(BaseTable):
         return self.get_user(user.user_id)
 
     def is_exists(self, user_id: int) -> bool:
-        self.cursor.execute(f'SELECT COUNT(*) FROM {self.__tablename__} WHERE id = ?', (user_id,))
+        self.cursor.execute(f'SELECT COUNT(*) FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
         return self.cursor.fetchone()[0] > 0
 
-    def get_user(self, user_id: int) -> Optional[User]:
+    def get_user(self, user_id: int) -> Optional[UserModel]:
         """Получение пользователя по ID"""
         self.cursor.execute(f'SELECT * FROM {self.__tablename__} WHERE user_id = ?', (user_id,))
         row = self.cursor.fetchone()
         if row:
-            return User(
+            return UserModel(
                 user_id=row['user_id'],
                 username=row['username'],
                 first_name=row['first_name'],
@@ -77,7 +77,7 @@ class UsersTable(BaseTable):
             )
         return None
 
-    def update_user(self, user: User) -> Optional[User]:
+    def update_user(self, user: UserModel) -> Optional[UserModel]:
         """Обновление информации о пользователе"""
         self.cursor.execute(f'''
         UPDATE {self.__tablename__} 
@@ -98,7 +98,7 @@ class UsersTable(BaseTable):
             self._log("DELETE_USER", user_id=user_id)
         return deleted
 
-    def get_all_users(self) -> List[User]:
+    def get_all_users(self) -> List[UserModel]:
         """Получение всех пользователей"""
         self.cursor.execute('''
             SELECT 
@@ -110,7 +110,7 @@ class UsersTable(BaseTable):
             GROUP BY u.user_id
             ORDER BY u.registration_date DESC
         ''')
-        return [User(
+        return [UserModel(
             user_id=row['user_id'],
             username=row['username'],
             first_name=row['first_name'],
@@ -124,11 +124,11 @@ class UsersTable(BaseTable):
             query_count=row['query_count']
         ) for row in self.cursor]
 
-    def get_admins(self) -> List[User]:
+    def get_admins(self) -> List[UserModel]:
         """Получение администраторов"""
         self.cursor.execute(f'''
         SELECT * FROM {self.__tablename__} WHERE is_admin = 1''')
-        return [User(
+        return [UserModel(
             user_id=row['user_id'],
             username=row['username'],
             first_name=row['first_name'],

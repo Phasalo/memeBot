@@ -1,7 +1,7 @@
 from aiogram.types import Message, CallbackQuery
 from typing import Union, Callable, Any
 from math import ceil
-from DB.phrases import PHRASES_RU
+from phrases import PHRASES_RU
 
 
 # async def __make_page(event: Union[Message, CallbackQuery],

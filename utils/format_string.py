@@ -1,6 +1,6 @@
 import re
 from typing import List, Optional
-from bot.models import User, Query
+from DB.models import UserModel, QueryModel
 
 
 def clear_string(text: str):
@@ -49,7 +49,7 @@ def get_query_count_emoji(count: int) -> str:
     return '🐥'
 
 
-def format_user_list(users_info: List[User]) -> str:
+def format_user_list(users_info: List[UserModel]) -> str:
     txt = f'Всего пользователей: <b>{len(users_info)}</b>\n\n'
     for user in users_info:
         emoji = get_query_count_emoji(user.query_count)
@@ -64,7 +64,7 @@ def format_user_list(users_info: List[User]) -> str:
 
 
 def format_queries_text(
-        queries: List[Query],
+        queries: List[QueryModel],
         username: Optional[str] = None,
         user_id: Optional[int] = None,
         header_template: str = "История запросов <b>{username}</b>\n\n",
@@ -75,7 +75,7 @@ def format_queries_text(
     Форматирует список запросов в текстовое сообщение.
 
     Args:
-        queries: Список объектов Query
+        queries: Список объектов QueryModel
         username: Имя пользователя (если есть)
         user_id: ID пользователя (если username отсутствует)
         header_template: Шаблон заголовка с {username} placeholder
@@ -97,10 +97,6 @@ def format_queries_text(
             'username': f"@{query.user.username}" if show_username and query.user and query.user.username else ""
         }
         line = line_template.format(**line_data)
-
-        if len(line) + len(txt) < 4096:
-            txt += line
-        else:
-            break
+        txt += line
 
     return txt

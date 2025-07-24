@@ -1,7 +1,7 @@
 from typing import Optional
 from aiogram.types import Message
 
-from DB.phrases import PHRASES_RU
+from phrases import PHRASES_RU
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
 from utils import format_string

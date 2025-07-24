@@ -2,7 +2,7 @@ from aiogram.types import Message
 
 from bot.routers import UserRouter
 from config import Config, load_config
-from DB.phrases import PHRASES_RU
+from phrases import PHRASES_RU
 from bot.decorators import cmd, available_commands
 
 router = UserRouter()

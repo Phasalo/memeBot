@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from DB.phrases import PHRASES_RU
+from phrases import PHRASES_RU
 from aiogram.filters.callback_data import CallbackData
 
 

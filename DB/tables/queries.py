@@ -2,12 +2,12 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from DB.tables.base import BaseTable
-from bot.models import User, Query
+from DB.models import UserModel, QueryModel
 
 
 class QueriesTable(BaseTable):
     __tablename__ = 'queries'
-        
+
     def create_table(self):
         """Создание таблицы queries"""
         self.cursor.execute(f'''
@@ -22,7 +22,7 @@ class QueriesTable(BaseTable):
         self.conn.commit()
         self._log("CREATE_TABLE")
 
-    def add_query(self, query: Query) -> Query:
+    def add_query(self, query: QueryModel) -> QueryModel:
         """Добавление нового запроса"""
         self.cursor.execute(f'''
         INSERT INTO {self.__tablename__} (user_id, query_text)
@@ -32,7 +32,7 @@ class QueriesTable(BaseTable):
         self._log("ADD_QUERY", query_id=query_id, user_id=query.user_id)
         return self.get_query(query_id)
 
-    def get_query(self, query_id: int) -> Optional[Query]:
+    def get_query(self, query_id: int) -> Optional[QueryModel]:
         """Получение запроса по ID"""
         self.cursor.execute(f'''
         SELECT q.query_id, q.user_id, q.query_text, q.query_date,
@@ -42,7 +42,7 @@ class QueriesTable(BaseTable):
         WHERE q.query_id = ?''', (query_id,))
         row = self.cursor.fetchone()
         if row:
-            user = User(
+            user = UserModel(
                 user_id=row['user_id'],
                 username=row['username'],
                 first_name=row['first_name'],
@@ -50,7 +50,7 @@ class QueriesTable(BaseTable):
                 is_admin=bool(row['is_admin'])
             ) if row['user_id'] else None
 
-            return Query(
+            return QueryModel(
                 query_id=row['query_id'],
                 user_id=row['user_id'],
                 query_text=row['query_text'],
@@ -63,7 +63,7 @@ class QueriesTable(BaseTable):
             )
         return None
 
-    def get_user_queries(self, user_id: int, limit: Optional[int] = None) -> List[Query]:
+    def get_user_queries(self, user_id: int, limit: Optional[int] = None) -> List[QueryModel]:
         """Получение запросов пользователя"""
         query = f'''
         SELECT q.query_id, q.user_id, q.query_text, q.query_date,
@@ -80,7 +80,7 @@ class QueriesTable(BaseTable):
 
         self.cursor.execute(query, params)
         return [
-            Query(
+            QueryModel(
                 query_id=row['query_id'],
                 user_id=row['user_id'],
                 query_text=row['query_text'],
@@ -89,7 +89,7 @@ class QueriesTable(BaseTable):
                     if row['query_date']
                     else None
                 ),
-                user=User(
+                user=UserModel(
                     user_id=row['user_id'],
                     username=row['username'],
                     first_name=row['first_name'],
@@ -99,7 +99,7 @@ class QueriesTable(BaseTable):
             ) for row in self.cursor
         ]
 
-    def get_all_queries(self, limit: Optional[int] = None) -> List[Query]:
+    def get_all_queries(self, limit: Optional[int] = None) -> List[QueryModel]:
         """Получение всех запросов"""
         query = f'''
         SELECT q.query_id, q.user_id, q.query_text, q.query_date,
@@ -115,7 +115,7 @@ class QueriesTable(BaseTable):
 
         self.cursor.execute(query, params)
         return [
-            Query(
+            QueryModel(
                 query_id=row['query_id'],
                 user_id=row['user_id'],
                 query_text=row['query_text'],
@@ -124,7 +124,7 @@ class QueriesTable(BaseTable):
                     if row['query_date']
                     else None
                 ),
-                user=User(
+                user=UserModel(
                     user_id=row['user_id'],
                     username=row['username'],
                     first_name=row['first_name'],
@@ -134,7 +134,7 @@ class QueriesTable(BaseTable):
             ) for row in self.cursor
         ]
 
-    def get_last_queries(self, amount: int = 5) -> List[Query]:
+    def get_last_queries(self, amount: int = 5) -> List[QueryModel]:
         """Получение последних запросов"""
         if amount < 0:
             raise ValueError("Amount cannot be negative")

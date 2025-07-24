@@ -6,7 +6,7 @@ from DB.tables.users import UsersTable
 from bot.keyboards import user_keyboards
 
 from config import Config, load_config
-from DB.phrases import PHRASES_RU
+from phrases import PHRASES_RU
 
 config: Config = load_config()
 
@@ -17,7 +17,7 @@ router = Router()
 async def get_verified(message: Message):
     with UsersTable() as users_db:
         if users_db.set_admin(message.from_user.id, message.from_user.id):
-            await message.answer(PHRASES_RU.success.admin_promoted)
+            await message.answer(PHRASES_RU.success.promoted)
         else:
             await message.answer(PHRASES_RU.error.db)
 

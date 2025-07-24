@@ -4,9 +4,8 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from utils.format_string import find_first_number
 from bot.models import CommandUnit
-from DB.phrases import PHRASES_RU
+from phrases import PHRASES_RU
 from DB.tables.users import UsersTable
 
 available_commands: List[CommandUnit] = []
@@ -38,9 +37,14 @@ def arguments_command(func):
 
 
 def digit_argument_command(func):
-    async def wrapper(message: Message):
-        arg = find_first_number(message.text)
-        await func(message, arg)
+    @arguments_command
+    async def wrapper(message: Message, args):
+        digit = args[0]
+        if not digit.isdigit():
+            await message.answer(PHRASES_RU.error.not_digit_argument)
+            return
+        await func(message, digit)
+
     return wrapper
 
 
@@ -49,7 +53,7 @@ def user_id_argument_command(func):
     async def wrapper(message: Message, user_id):
         with UsersTable() as users_db:
             if not users_db.is_exists(user_id):
-                await message.answer(PHRASES_RU.error.user_not_exist)
+                await message.answer(PHRASES_RU.replace('error.user_not_exist', user_id=user_id))
                 return
             await func(message, user_id)
     return wrapper
