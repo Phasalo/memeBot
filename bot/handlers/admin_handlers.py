@@ -79,8 +79,8 @@ async def cmd_query(message: Message, amount: Optional[int]):
 
         txt = format_string.format_queries_text(
             queries=queries,
-            header_template='',
-            line_template="{username} <blockquote>{time}</blockquote> <i>{query}</i>\n\n",
+            header_template=PHRASES_RU.title.all_queries,
+            line_template=PHRASES_RU.template.all_queries,
             show_username=True
         )
 
@@ -96,4 +96,4 @@ async def cmd_user_query(message: Message, user_id: int):
 
 @router.cmd('test', 'отладка и тестирование функций')           # /test
 async def _(message: Message):
-    pass
+    await message.answer(PHRASES_RU.template.user_query)

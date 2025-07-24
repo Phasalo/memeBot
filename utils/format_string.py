@@ -50,7 +50,7 @@ def get_query_count_emoji(count: int) -> str:
 
 
 def format_user_list(users_info: List[UserModel]) -> str:
-    txt = f'Всего пользователей: <b>{len(users_info)}</b>\n\n'
+    txt = PHRASES_RU.replace('title.users', len_users=len(users_info))
     for user in users_info:
         emoji = get_query_count_emoji(user.query_count)
         admin_flag = ' 👑 |' if user.is_admin else ''
@@ -68,8 +68,8 @@ def format_queries_text(
         queries: List[QueryModel],
         username: Optional[str] = None,
         user_id: Optional[int] = None,
-        header_template: str = "История запросов <b>{username}</b>\n\n",
-        line_template: str = "<blockquote>{time}</blockquote> <i>{query}</i>\n\n",
+        header_template: str = PHRASES_RU.title.user_query,
+        line_template: str = PHRASES_RU.template.user_query,
         show_username: bool = False
 ) -> str:
     """
