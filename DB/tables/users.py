@@ -192,3 +192,9 @@ class UsersTable(BaseTable):
             self.conn.rollback()
             self._log("ERROR", error=str(e), action="SET_BAN_STATUS", user_id=user_id)
             return False
+
+
+if __name__ == '__main__':
+    with UsersTable() as users_db:
+        for user in users_db.get_all_users():
+            print(user.__dict__)

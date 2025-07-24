@@ -40,13 +40,21 @@ async def _(message: Message, user_id):
 @cmd('unban', router, 'разблокировать пользователя по ID')          # /unban
 @decorators.user_id_argument_command
 async def _(message: Message, user_id):
-    pass
+    with UsersTable() as user_db:
+        if user_db.set_ban_status(user_id, message.from_user.id, False):
+            await message.answer(PHRASES_RU.replace('success.unbanned', user_id=user_id))
+        else:
+            await message.answer(PHRASES_RU.error.db)
 
 
 @cmd('promote', router, 'повышает уровень доступа пользователя')    # /promote
 @decorators.user_id_argument_command
 async def _(message: Message, user_id):
-    pass
+    with UsersTable() as users_db:
+        if users_db.set_admin(user_id, message.from_user.id, True):
+            await message.answer(PHRASES_RU.replace('success.promoted_by', user_id=user_id))
+        else:
+            await message.answer(PHRASES_RU.error.db)
 
 
 @cmd('demote', router, 'понижает уровень доступа пользователя')     # /demote
