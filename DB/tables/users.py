@@ -214,7 +214,7 @@ class UsersTable(BaseTable):
 
 if __name__ == '__main__':
     with UsersTable() as users_db:
-        users, info = users_db.get_all_users(1, 100)
-        for user in users:
-            print(user.__dict__)
+        users_row, info = users_db.get_all_users(1, 100)
+        for user_unit in users_row:
+            print(user_unit.__dict__)
         print(info.__dict__)

@@ -1,7 +1,6 @@
 import re
 from typing import List, Optional
 from DB.models import UserModel, QueryModel
-from config.const import USERS_PER_PAGE
 from phrases import PHRASES_RU
 from DB.models import Pagination
 
