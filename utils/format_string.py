@@ -1,6 +1,7 @@
 import re
 from typing import List, Optional
 from DB.models import UserModel, QueryModel
+from config.const import USERS_PER_PAGE
 from phrases import PHRASES_RU
 from DB.models import Pagination
 
@@ -48,7 +49,8 @@ def format_user_list(users_info: List[UserModel], pagination: Pagination) -> str
         else:
             txt.append(user_line)
 
-    txt.append('<code>.</code>\n' * (pagination.per_page - len(users_info)))
+    if pagination.total_pages > 1:
+        txt.append('<code>.</code>\n' * (pagination.per_page - len(users_info)))
 
     return ''.join(txt)
 
