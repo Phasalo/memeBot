@@ -60,6 +60,7 @@ footnote:
 
 icon:
   not_username: "—"
+  page_separator: " / "
   query:
     thresholds:
       "🤯": 100

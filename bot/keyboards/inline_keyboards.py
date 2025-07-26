@@ -24,6 +24,6 @@ def page_keyboard(action: int, pagination: Pagination, user_id: int = 0) -> Unio
 
     return IMarkup(inline_keyboard=[[
         past_button,
-        IButton(text=f'{pagination.page} / {pagination.total_pages}', callback_data=no_action),
+        IButton(text=f'{pagination.page}{PHRASES_RU.icon.page_separator}{pagination.total_pages}', callback_data=no_action),
         next_button
     ]])
