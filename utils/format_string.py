@@ -48,7 +48,8 @@ def format_user_list(users_info: List[UserModel], pagination: Pagination) -> str
         else:
             txt.append(user_line)
 
-    txt.append('<code>.</code>\n' * (pagination.per_page - len(users_info)))
+    if pagination.total_pages > 1:
+        txt.append('<code>.</code>\n' * (pagination.per_page - len(users_info)))
 
     return ''.join(txt)
 

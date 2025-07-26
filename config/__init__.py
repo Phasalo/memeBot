@@ -50,15 +50,15 @@ def load_config() -> Config:
     )
 
 
-def setup_logging(config: LogConfig):
+def setup_logging(cfg: LogConfig):
     logging.basicConfig(
-        level=getattr(logging, config.level),
-        format=config.format,
+        level=getattr(logging, cfg.level),
+        format=cfg.format,
         handlers=[
             logging.handlers.RotatingFileHandler(
-                filename=BASE_DIR / config.file_path,
-                maxBytes=config.max_size * 1024 * 1024,
-                backupCount=config.backup_count,
+                filename=BASE_DIR / cfg.file_path,
+                maxBytes=cfg.max_size * 1024 * 1024,
+                backupCount=cfg.backup_count,
                 encoding='utf-8'
             ),
             logging.StreamHandler()
