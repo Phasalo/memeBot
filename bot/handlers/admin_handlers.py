@@ -20,10 +20,10 @@ async def _(message: Message):
     commands_text = PHRASES_RU.title.commands
     admin_commands = '\n'.join(str(command) for command in BaseRouter.available_commands if command.is_admin)
     if admin_commands:
-        commands_text += PHRASES_RU.info.admin_commands + admin_commands + '\n\n'
+        commands_text += PHRASES_RU.subtitle.admin_commands + admin_commands + '\n\n'
     user_commands = '\n'.join(str(command) for command in BaseRouter.available_commands if not command.is_admin)
     if user_commands:
-        commands_text += PHRASES_RU.info.user_commands + user_commands
+        commands_text += PHRASES_RU.subtitle.user_commands + user_commands
     await message.answer(commands_text)
 
 

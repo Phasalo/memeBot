@@ -24,4 +24,4 @@ async def get_verified(message: Message):
 
 @router.message()
 async def _(message: Message):
-    await message.answer(text=PHRASES_RU.hz_answers, reply_markup=user_keyboards.keyboard)
+    await message.answer(text=PHRASES_RU.answers.unknown, reply_markup=user_keyboards.keyboard)
