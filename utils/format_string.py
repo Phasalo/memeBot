@@ -83,7 +83,7 @@ def format_queries_text(
     for query in queries:
         line_data = {
             'time': query.query_date.strftime('%d.%m.%Y %H:%M:%S') if query.query_date else PHRASES_RU.error.unknown,
-            'query': clear_string(query.query_text),
+            'query': query.query_text,
             'username': f'@{query.user.username}' if show_username and query.user and query.user.username else ''
         }
         txt.append(line_template.format(**line_data))

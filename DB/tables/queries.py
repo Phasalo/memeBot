@@ -4,6 +4,8 @@ from typing import List, Optional
 from DB.tables.base import BaseTable
 from DB.models import UserModel, QueryModel, Pagination
 
+from utils.format_string import clear_string
+
 
 class QueriesTable(BaseTable):
     __tablename__ = 'queries'
@@ -26,7 +28,7 @@ class QueriesTable(BaseTable):
         """Добавление нового запроса"""
         self.cursor.execute(f'''
         INSERT INTO {self.__tablename__} (user_id, query_text)
-        VALUES (?, ?)''', (query.user_id, query.query_text))
+        VALUES (?, ?)''', (query.user_id, clear_string(query.query_text)))
         query_id = self.cursor.lastrowid
         self.conn.commit()
         self._log('ADD_QUERY', query_id=query_id, user_id=query.user_id)
