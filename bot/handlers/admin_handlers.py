@@ -10,7 +10,7 @@ from bot.routers import AdminRouter, BaseRouter
 router = AdminRouter()
 
 
-@router.command('get_users', 'таблица со всем пользователями')          # /get_users
+@router.command('users', 'таблица со всеми пользователями')          # /get_users
 async def _(message: Message):
     await pages.get_users(message.from_user.id)
 
@@ -20,7 +20,7 @@ async def _(message: Message):
     commands_text = PHRASES_RU.title.commands
     admin_commands = '\n'.join(str(command) for command in BaseRouter.available_commands if command.is_admin)
     if admin_commands:
-        commands_text += PHRASES_RU.subtitle.admin_commands + admin_commands + '\n\n'
+        commands_text += PHRASES_RU.subtitle.admin_commands + admin_commands
     user_commands = '\n'.join(str(command) for command in BaseRouter.available_commands if not command.is_admin)
     if user_commands:
         commands_text += PHRASES_RU.subtitle.user_commands + user_commands
@@ -55,7 +55,7 @@ async def _(message: Message, user_id):
 
 
 @router.command('promote',
-                'повышает уровень доступа пользователя',
+                'повысить уровень доступа',
                 'user_id')                                              # /promote
 @command_arguments.user_id
 async def _(message: Message, user_id):
@@ -67,7 +67,7 @@ async def _(message: Message, user_id):
 
 
 @router.command('demote',
-                'понижает уровень доступа пользователя',
+                'понизить уровень доступа',
                 'user_id')                                              # /demote
 @command_arguments.user_id
 async def _(message: Message, user_id):
@@ -82,7 +82,7 @@ async def _(message: Message, user_id):
                 'последние N запросов',
                 'N')                                                    # /query
 @command_arguments.digit(default=5)
-async def cmd_query(message: Message, amount: int):
+async def _(message: Message, amount: int):
     with QueriesTable() as queries_db:
         queries = queries_db.get_last_queries(int(amount))
         if not queries:
@@ -104,7 +104,7 @@ async def cmd_query(message: Message, amount: int):
                 'запросы пользователя по ID',
                 'user_id')                                              # /user_query
 @command_arguments.user_id
-async def cmd_user_query(message: Message, user_id: int):
+async def _(message: Message, user_id: int):
     await pages.user_query(message.from_user.id, user_id)
 
 

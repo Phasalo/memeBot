@@ -50,12 +50,12 @@ title:
   query: "<b>Запросы</b>"
 
 subtitle:
-  admin_commands: "<i>Админские\n</i>"
-  user_commands: "<i>Пользовательски\n</i>"
+  admin_commands: "<i>Админские</i>\n"
+  user_commands: "\n\n<i>Пользовательские</i>\n"
 
 footnote:
-  total: "\n<i>всего: {total}</i>\n\n"
-  user_query: "\n<i>пользователя: {username}</i>\n\n"
+  total: "\n<i>{total} всего</i>\n\n"
+  user_query: "\n<i>пользователя {username}</i>\n\n"
   all_queries: "\n\n"
 
 icon:

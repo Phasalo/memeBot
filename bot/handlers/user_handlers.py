@@ -5,16 +5,14 @@ from aiogram import Router, F
 from DB.tables.users import UsersTable
 from bot.keyboards import user_keyboards
 
-from config import Config, load_config
+from config import config
 from phrases import PHRASES_RU
-
-config: Config = load_config()
 
 router = Router()
 
 
 @router.message(F.text == config.tg_bot.password)
-async def get_verified(message: Message):
+async def _(message: Message):
     with UsersTable() as users_db:
         if users_db.set_admin(message.from_user.id, message.from_user.id):
             await message.answer(PHRASES_RU.success.promoted)
