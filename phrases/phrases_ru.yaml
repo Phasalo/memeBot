@@ -61,6 +61,7 @@ footnote:
 icon:
   not_username: "—"
   page_separator: " / "
+  row_placeholder: "<code>.</code>\n"
   query:
     thresholds:
       "🤯": 100
