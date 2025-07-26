@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Awaitable, Callable, Union
+from typing import Any, Awaitable, Callable, Optional
 
 from aiogram import BaseMiddleware
 from aiogram.exceptions import AiogramError
@@ -26,7 +26,7 @@ class GetUserMiddleware(BaseMiddleware):
 
         try:
             with UsersTable() as users_db:
-                user_row: Union[UserModel, None] = users_db.get_user(user.id)
+                user_row: Optional[UserModel] = users_db.get_user(user.id)
                 if not user_row or user.username != user_row.username:
                     new_user = UserModel(
                         user_id=user.id,

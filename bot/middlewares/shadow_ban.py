@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Awaitable, Callable, Union
+from typing import Any, Awaitable, Callable, Optional
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Update
@@ -16,7 +16,7 @@ class ShadowBanMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Any:
 
-        user_row: Union[UserModel, None] = data.get('user_row')
+        user_row: Optional[UserModel] = data.get('user_row')
         if user_row is None:
             logger.warning(
                 'Cannot check for shadow ban. The \'user_row\' '

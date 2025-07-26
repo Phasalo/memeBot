@@ -1,6 +1,6 @@
 import logging
 from aiogram import BaseMiddleware
-from typing import Callable, Dict, Any, Awaitable, Union
+from typing import Callable, Dict, Any, Awaitable, Optional
 from aiogram.types import Message, TelegramObject
 
 from DB.tables.queries import QueriesTable
@@ -20,7 +20,12 @@ class UserRegistrationMiddleware(BaseMiddleware):
     ) -> Any:
         if not isinstance(event, Message):
             return await handler(event, data)
-        skip_commands = [f'/{command.name}' for command in BaseRouter.available_commands if command.is_admin]
+        skip_commands = [
+            f'/{cmd}'
+            for command in BaseRouter.available_commands
+            if command.is_admin
+            for cmd in [command.name] + list(command.aliases)
+        ]
         if event.text and any(event.text.startswith(cmd) for cmd in skip_commands):
             return await handler(event, data)
 
@@ -31,7 +36,7 @@ class UserRegistrationMiddleware(BaseMiddleware):
         #   <-| ----------------- -<phasalo>- ------------------ |->
 
         # например
-        user_row: Union[UserModel, None] = data.get('user_row')
+        user_row: Optional[UserModel] = data.get('user_row')
         if user_row is None:
             logger.warning(
                 'Cannot add queries. The \'user_row\' '
