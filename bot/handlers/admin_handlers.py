@@ -3,14 +3,14 @@ from aiogram.types import Message
 from phrases import PHRASES_RU
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
-from utils import format_string
+from utils import format_list
 from bot import command_arguments, pages
 from bot.routers import AdminRouter, BaseRouter
 
 router = AdminRouter()
 
 
-@router.command('users', 'таблица со всеми пользователями')          # /get_users
+@router.command('users', 'таблица со всеми пользователями')             # /users
 async def _(message: Message):
     await pages.get_users(message.from_user.id)
 
@@ -89,7 +89,7 @@ async def _(message: Message, amount: int):
             await message.answer(PHRASES_RU.info.no_query)
             return
 
-        txt = format_string.format_queries_text(
+        txt = format_list.format_queries_text(
             queries=queries,
             footnote_template=PHRASES_RU.footnote.all_queries,
             line_template=PHRASES_RU.template.all_queries,

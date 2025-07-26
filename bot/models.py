@@ -1,24 +1,26 @@
 from dataclasses import dataclass
-from typing import Tuple, Optional, Any
+from typing import Tuple, Optional, Any, Union
 from aiogram.filters.callback_data import CallbackData
 
 
 @dataclass
 class CommandUnit:
     """Контейнер для хранения информации о команде бота"""
-    name: str
-    description: str
-    is_admin: bool
-    placeholders: Optional[Tuple[Any]] = None
+    name: str  # Основное имя команды
+    aliases: Tuple[str, ...] = ()  # Дополнительные варианты вызова
+    description: str = ''
+    is_admin: bool = False
+    placeholders: Optional[Tuple[Any, ...]] = None
 
     def __str__(self):
-        command = f'/{self.name}'
+        base = f'/{self.name}'
+        if self.aliases:
+            base += f", {', '.join(f'/{a}' for a in self.aliases)}"
         if self.placeholders:
-            for placeholder in self.placeholders:
-                command += f' {{{placeholder}}}'
+            base += ' ' + ' '.join(f'{{{p}}}' for p in self.placeholders)
         if self.description:
-            command += f' — {self.description}'
-        return command
+            base += f' — {self.description}'
+        return base
 
 
 class CutMessageCallBack(CallbackData, prefix='cut'):

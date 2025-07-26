@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union, Tuple
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -16,14 +16,17 @@ class BaseRouter(Router):
         if self.is_admin:
             self.message.filter(AdminFilter())
 
-    def command(self, command: str, description: str = '', *placeholders):
+    def command(self, command: Union[str, Tuple[str, ...]], description: str = '', *placeholders):
         def decorator(handler):
-            self.available_commands.append(CommandUnit(command, description, self.is_admin, placeholders if placeholders else None))
+            commands = (command,) if isinstance(command, str) else command
+            self.available_commands.append(CommandUnit(commands[0], commands[1:], description, self.is_admin, placeholders if placeholders else None))
 
-            @self.message(Command(command))
+            @self.message(Command(*commands))
             async def wrapper(message: Message):
                 await handler(message)
+
             return handler
+
         return decorator
 
 
