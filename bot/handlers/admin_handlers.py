@@ -16,7 +16,7 @@ async def _(message: Message):
 
 
 @router.command('getcmds', 'список всех доступных команд')  # /getcmds
-async def _(message: Message):
+async def command_getcmds(message: Message):
     commands_text = PHRASES_RU.title.commands
     admin_commands = '\n'.join(str(command) for command in BaseRouter.available_commands if command.is_admin)
     if admin_commands:
