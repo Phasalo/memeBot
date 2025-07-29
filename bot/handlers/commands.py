@@ -23,7 +23,7 @@ async def _(message: Message):
     await message.answer(PHRASES_RU.commands.about, disable_web_page_preview=True)
 
 
-@router.command(('commands', 'cmd'), 'список всех команд (это сообщение)')  # /commands
+@router.command(('commands', 'cmds'), 'список всех команд (это сообщение)')  # /commands /cmds
 async def _(message: Message):
     commands_text = '\n'.join(str(command) for command in BaseRouter.available_commands if not command.is_admin)
     await message.answer(PHRASES_RU.title.commands + commands_text)
