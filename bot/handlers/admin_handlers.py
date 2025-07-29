@@ -1,3 +1,4 @@
+import logging
 from aiogram.types import Message
 
 from phrases import PHRASES_RU
@@ -9,6 +10,7 @@ from bot.routers import AdminRouter, BaseRouter
 import temp
 
 router = AdminRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.command('users', 'таблица со всеми пользователями')  # /users
@@ -94,6 +96,7 @@ async def _(message: Message, amount: int):
 @router.command('clear_temp', 'очистка временных файлов')  # /clear_temp
 async def _(message: Message):
     if temp.clear():
+        logger.info(f'TEMP directory cleared by user {message.from_user.id} ({message.from_user.username})')
         await message.answer(text=PHRASES_RU.success.clear_temp)
     else:
         await message.answer(text=PHRASES_RU.error.clear_temp)
