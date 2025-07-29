@@ -6,6 +6,7 @@ from DB.tables.users import UsersTable
 from utils import format_list
 from bot import command_arguments, pages
 from bot.routers import AdminRouter, BaseRouter
+import temp
 
 router = AdminRouter()
 
@@ -88,6 +89,14 @@ async def _(message: Message, amount: int):
 
         if txt:
             await message.answer(txt.replace('\t', '\n'), disable_web_page_preview=True)
+
+
+@router.command('clear_temp', 'очистка временных файлов')  # /clear_temp
+async def _(message: Message):
+    if temp.clear():
+        await message.answer(text=PHRASES_RU.success.clear_temp)
+    else:
+        await message.answer(text=PHRASES_RU.error.clear_temp)
 
 
 @router.command('user_query', 'запросы пользователя по ID', 'user_id')  # /user_query
