@@ -20,7 +20,7 @@
 import asyncio
 from aiogram import Dispatcher
 
-from config import bot
+from config import bot, config
 from bot.middlewares.get_user import GetUserMiddleware
 from bot.middlewares.shadow_ban import ShadowBanMiddleware
 from bot.middlewares.logging_query import UserLoggerMiddleware
@@ -49,7 +49,7 @@ async def main() -> None:
     dp.message.middleware.register(UserLoggerMiddleware())
     dp.inline_query.middleware.register(UserLoggerMiddleware())
 
-    logger.info('Phasalo Bot Template starting')
+    logger.info(f'Phasalo Bot Template starting\n * Running on http://t.me/{config.tg_bot.username}')
     try:
         await dp.start_polling(bot)
     except Exception as e:
