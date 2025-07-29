@@ -14,7 +14,7 @@ async def get_users(user_id: int, page: int = 1, message_id: Union[int, None] = 
         users, pagination = users_db.get_all_users(page, USERS_PER_PAGE)
 
         txt = format_list.format_user_list(users, pagination)
-        reply_markup = keyboards.inline.page_keyboard(action=1, pagination=pagination)
+        reply_markup = keyboards.inline.page_keyboard(type_of_event=1, pagination=pagination)
 
         if message_id:
             await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=txt,
@@ -41,7 +41,7 @@ async def user_query(user_id: int, user_id_to_find: Union[int, None], page: int 
         )
 
         reply_markup = keyboards.inline.page_keyboard(
-            action=2,
+            type_of_event=2,
             pagination=pagination,
             user_id=user_id_to_find
         )

@@ -24,6 +24,6 @@ class CommandUnit:
 
 
 class PageCallBack(CallbackData, prefix='cut'):
-    action: int
+    type_of_event: int
     user_id: int = 0
     page: int = 1
