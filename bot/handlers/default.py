@@ -1,11 +1,13 @@
+from aiogram import F
+from DB.tables.users import UsersTable
+from bot import keyboards
+from bot.handlers.admin import command_getcmds
 from aiogram.types import Message
-
-from bot.routers import UserRouter, BaseRouter
-from config import Config, load_config
+from bot.utils.routers import UserRouter, BaseRouter
+from config import config
 from phrases import PHRASES_RU
 
 router = UserRouter()
-config: Config = load_config()
 
 
 @router.command('start', 'запустить бота')  # /start
@@ -27,3 +29,19 @@ async def _(message: Message):
 async def _(message: Message):
     commands_text = '\n'.join(str(command) for command in BaseRouter.available_commands if not command.is_admin)
     await message.answer(PHRASES_RU.title.commands + commands_text)
+
+
+@router.message(F.text == config.tg_bot.password)
+async def _(message: Message):
+    with UsersTable() as users_db:
+        if users_db.set_admin(message.from_user.id, message.from_user.id):
+            await message.delete()
+            await message.answer(PHRASES_RU.success.promoted)
+            await command_getcmds(message)
+        else:
+            await message.answer(PHRASES_RU.error.db)
+
+
+@router.message()
+async def _(message: Message):
+    await message.answer(text=PHRASES_RU.answers.unknown, reply_markup=keyboards.default.keyboard)

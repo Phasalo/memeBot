@@ -2,7 +2,7 @@ from typing import Union
 from aiogram.types import InlineKeyboardButton as IButton
 from aiogram.types import InlineKeyboardMarkup as IMarkup
 from phrases import PHRASES_RU
-from bot.models import PageCallBack
+from bot.utils.models import PageCallBack
 from DB.models import Pagination
 
 

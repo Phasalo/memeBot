@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple, Optional, Any, Union
+from typing import Tuple, Optional, Any
 from aiogram.filters.callback_data import CallbackData
 
 
