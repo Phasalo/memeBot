@@ -49,7 +49,7 @@ async def main() -> None:
     dp.message.middleware.register(UserLoggerMiddleware())
     dp.inline_query.middleware.register(UserLoggerMiddleware())
 
-    logger.info(f'Phasalo Bot Template starting\n * Running on http://t.me/{config.tg_bot.username}')
+    logger.info(f'{(await bot.get_me()).first_name} starting\n * Running on http://t.me/{(await bot.get_me()).username}')
     try:
         await dp.start_polling(bot)
     except Exception as e:

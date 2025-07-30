@@ -26,7 +26,6 @@ class LogConfig:
 class TgBot:
     token: str
     password: str
-    username: str
     message_max_symbols: int = 400
 
 
@@ -40,8 +39,7 @@ def __load_config() -> Config:
     return Config(
         tg_bot=TgBot(
             token=os.getenv('BOT_TOKEN'),
-            password=os.getenv('PASSWORD'),
-            username=os.getenv('BOT_USERNAME')
+            password=os.getenv('PASSWORD')
         ),
         log=LogConfig(
             level=os.getenv('LOG_LEVEL', 'INFO'),
