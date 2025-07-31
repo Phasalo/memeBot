@@ -50,7 +50,9 @@ upstream  # оригинал (только чтение)
 ```bash
 git fetch upstream
 git merge upstream/main
-# или для перезаписи всех изменений:
+```
+или для перезаписи всех изменений
+```bash
 git reset --hard upstream/main
 ```
 
