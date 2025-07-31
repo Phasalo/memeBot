@@ -3,7 +3,7 @@ from DB.tables.users import UsersTable
 from bot import keyboards
 from bot.handlers.admin import command_getcmds
 from aiogram.types import Message
-from bot.utils.routers import UserRouter, BaseRouter
+from bot.bot_utils.routers import UserRouter, BaseRouter
 from config import config
 from phrases import PHRASES_RU
 
