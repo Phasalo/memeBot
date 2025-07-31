@@ -20,7 +20,7 @@
 import asyncio
 from aiogram import Dispatcher
 
-from config import bot, config
+from config import bot
 from bot.middlewares.get_user import GetUserMiddleware
 from bot.middlewares.shadow_ban import ShadowBanMiddleware
 from bot.middlewares.logging_query import UserLoggerMiddleware
