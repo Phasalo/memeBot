@@ -10,21 +10,22 @@ def page_keyboard(type_of_event: int, pagination: Pagination, user_id: int = 0) 
     if pagination.total_pages <= 1:
         return None
 
-    no_action = PageCallBack(type_of_event=-1).pack()
+    empty_button = IButton(text=' ', callback_data=PageCallBack(type_of_event=-1).pack())
 
     past_button = IButton(
         text=PHRASES_RU.button.past_page,
         callback_data=PageCallBack(type_of_event=type_of_event, page=pagination.page - 1, user_id=user_id).pack()
-    ) if pagination.has_prev else IButton(text=' ', callback_data=no_action)
+    ) if pagination.has_prev else empty_button
 
     next_button = IButton(
         text=PHRASES_RU.button.next_page,
         callback_data=PageCallBack(type_of_event=type_of_event, page=pagination.page + 1, user_id=user_id).pack()
-    ) if pagination.has_next else IButton(text=' ', callback_data=no_action)
+    ) if pagination.has_next else empty_button
 
     return IMarkup(inline_keyboard=[[
         past_button,
         IButton(text=PHRASES_RU.replase('template.page_counter', current=pagination.page, total=pagination.total_pages),
-                callback_data=no_action),
+                callback_data=PageCallBack(type_of_event=type_of_event, page=pagination.page,
+                                           user_id=user_id).pack()),
         next_button
     ]])
