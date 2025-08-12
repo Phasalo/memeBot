@@ -1,11 +1,13 @@
 import os
 import logging
 import logging.handlers
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from dotenv import load_dotenv, find_dotenv
+import colorlog
 from config.const import BASE_DIR
 
 load_dotenv(find_dotenv())
@@ -16,7 +18,8 @@ Path(BASE_DIR / 'logs').mkdir(exist_ok=True)
 @dataclass
 class LogConfig:
     level: str = 'DEBUG'  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-    format: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format: str = '%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    file_format: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     file_path: str = 'logs/bot.log'
     max_size: int = 10  # MB
     backup_count: int = 3
@@ -51,9 +54,23 @@ def __load_config() -> Config:
 
 
 def setup_logging(cfg: LogConfig):
+    formatter = colorlog.ColoredFormatter(
+        fmt=cfg.format,
+        log_colors={
+            'DEBUG': 'cyan',
+            'INFO': 'green',
+            'WARNING': 'yellow',
+            'ERROR': 'red',
+            'CRITICAL': 'bold_red',
+        }
+    )
+
+    stdout_handler = colorlog.StreamHandler(stream=sys.stdout)
+    stdout_handler.setFormatter(formatter)
+
     logging.basicConfig(
         level=getattr(logging, cfg.level),
-        format=cfg.format,
+        format=cfg.file_format,
         handlers=[
             logging.handlers.RotatingFileHandler(
                 filename=BASE_DIR / cfg.file_path,
@@ -61,9 +78,10 @@ def setup_logging(cfg: LogConfig):
                 backupCount=cfg.backup_count,
                 encoding='utf-8'
             ),
-            logging.StreamHandler()
+            stdout_handler
         ]
     )
+
     logging.getLogger('aiogram').setLevel(logging.WARNING)
     logging.getLogger('asyncio').setLevel(logging.INFO)
 
