@@ -1,6 +1,7 @@
-from typing import Union
-from phrases import PHRASES_RU
+from typing import Optional
+from aiogram.exceptions import TelegramBadRequest
 
+from phrases import PHRASES_RU
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
 from config import bot
@@ -9,7 +10,7 @@ from utils import format_list
 from bot import keyboards
 
 
-async def get_users(user_id: int, page: int = 1, message_id: Union[int, None] = None):
+async def get_users(user_id: int, page: int = 1, message_id: Optional[int] = None):
     with UsersTable() as users_db:
         users, pagination = users_db.get_all_users(page, USERS_PER_PAGE)
 
@@ -17,13 +18,21 @@ async def get_users(user_id: int, page: int = 1, message_id: Union[int, None] = 
         reply_markup = keyboards.inline.page_keyboard(type_of_event=1, pagination=pagination)
 
         if message_id:
-            await bot.edit_message_text(chat_id=user_id, message_id=message_id, text=txt,
-                                        reply_markup=reply_markup)
+            try:
+                await bot.edit_message_text(chat_id=user_id,
+                                            message_id=message_id,
+                                            text=txt,
+                                            reply_markup=reply_markup)
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    pass
+                else:
+                    raise
         else:
             await bot.send_message(chat_id=user_id, text=txt, reply_markup=reply_markup)
 
 
-async def user_query(user_id: int, user_id_to_find: Union[int, None], page: int = 1, message_id: Union[int, None] = None):
+async def user_query(user_id: int, user_id_to_find: Optional[int], page: int = 1, message_id: Optional[int] = None):
     with QueriesTable() as queries_db, UsersTable() as users_db:
         queries, pagination = queries_db.get_user_queries(user_id_to_find, page, QUERIES_PER_PAGE)
         if not user_id_to_find or not queries:
@@ -47,12 +56,18 @@ async def user_query(user_id: int, user_id_to_find: Union[int, None], page: int 
         )
 
         if message_id:
-            await bot.edit_message_text(
-                chat_id=user_id,
-                message_id=message_id,
-                text=txt,
-                reply_markup=reply_markup
-            )
+            try:
+                await bot.edit_message_text(
+                    chat_id=user_id,
+                    message_id=message_id,
+                    text=txt,
+                    reply_markup=reply_markup
+                )
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    pass
+                else:
+                    raise
         else:
             await bot.send_message(
                 chat_id=user_id,
