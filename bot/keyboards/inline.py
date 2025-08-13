@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 from aiogram.types import InlineKeyboardButton as IButton
 from aiogram.types import InlineKeyboardMarkup as IMarkup
 from phrases import PHRASES_RU
@@ -6,7 +6,7 @@ from bot.bot_utils.models import PageCallBack
 from DB.models import Pagination
 
 
-def page_keyboard(type_of_event: int, pagination: Pagination, user_id: int = 0) -> Union[IMarkup, None]:
+def page_keyboard(type_of_event: int, pagination: Pagination, user_id: int = 0) -> Optional[IMarkup]:
     if pagination.total_pages <= 1:
         return None
 
