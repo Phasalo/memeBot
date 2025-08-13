@@ -24,7 +24,7 @@ def page_keyboard(type_of_event: int, pagination: Pagination, user_id: int = 0) 
 
     return IMarkup(inline_keyboard=[[
         past_button,
-        IButton(text=PHRASES_RU.replase('template.page_counter', current=pagination.page, total=pagination.total_pages),
+        IButton(text=PHRASES_RU.replace('template.page_counter', current=pagination.page, total=pagination.total_pages),
                 callback_data=PageCallBack(type_of_event=type_of_event, page=pagination.page,
                                            user_id=user_id).pack()),
         next_button
