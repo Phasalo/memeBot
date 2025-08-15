@@ -7,7 +7,10 @@
 <img src="https://img.shields.io/badge/Phasalopedia-EDD1EC">
 <img src="https://img.shields.io/badge/version-2.0.0-D71232">
 </p>
-Этот репозиторий является наследником [старой версии бота](https://github.com/CSSSensei/memeBot), от которой пришлось отказаться в связи с масштабным рефакторингом.
+
+Этот репозиторий является наследником [старой версии бота](https://github.com/CSSSensei/memeBot/), от которой пришлось отказаться в связи с масштабным рефакторингом.
+
+#### Заценить проект можно прямо сейчас [`@no3uTuB4uK_bot`](https://t.me/no3uTuB4uK_bot)
 
 <p align="center">
   <img src="https://yan-toples.ru/Phasalo/phasalopedia_logo.png" width="1500" alt="Phasalo">
