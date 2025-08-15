@@ -43,7 +43,7 @@ async def user_query(user_id: int, user_id_to_find: Optional[int], page: int = 1
 
         txt = format_list.format_queries_text(
             queries=queries,
-            username=user.username if user else None,
+            name=user.username or user.first_name if user else None,
             user_id=user_id_to_find,
             footnote_template=PHRASES_RU.footnote.user_query,
             line_template=PHRASES_RU.template.user_query
