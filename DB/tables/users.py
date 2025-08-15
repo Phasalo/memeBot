@@ -4,13 +4,14 @@ from typing import List, Optional, Tuple
 
 from DB.tables.base import BaseTable
 from DB.models import UserModel, Pagination
+from config.const import ColorFields
 
 
 class UsersTable(BaseTable):
-    __tablename__ = 'users'
+    __tablename__ = 'users_info'
 
     def create_table(self):
-        """Создание таблицы users"""
+        """Создание таблицы users_info"""
         self.cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS {self.__tablename__} (
             user_id INTEGER PRIMARY KEY,
@@ -19,6 +20,14 @@ class UsersTable(BaseTable):
             last_name TEXT,
             is_admin BOOLEAN NOT NULL DEFAULT 0,
             is_banned BOOLEAN NOT NULL DEFAULT 0,
+            premium BOOLEAN NOT NULL DEFAULT 0,
+            mode TEXT DEFAULT 'in',
+            upper_color TEXT DEFAULT '#FFFFFF',
+            bottom_color TEXT DEFAULT '#FFFFFF',
+            upper_stroke_color TEXT DEFAULT '#000000',
+            bottom_stroke_color TEXT DEFAULT '#000000',
+            stroke_width INTEGER DEFAULT 3,
+            giant_text BOOLEAN NOT NULL DEFAULT 0,
             registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )''')
         self.conn.commit()
@@ -30,9 +39,9 @@ class UsersTable(BaseTable):
 
         if existing_user:
             needs_update = (
-                (existing_user.username != user.username and user.username)
-                or (existing_user.first_name != user.first_name and user.first_name)
-                or (existing_user.last_name != user.last_name and user.last_name)
+                    (existing_user.username != user.username)
+                    or (existing_user.first_name != user.first_name)
+                    or (existing_user.last_name != user.last_name)
             )
 
             if needs_update:
@@ -69,6 +78,14 @@ class UsersTable(BaseTable):
                 last_name=row['last_name'],
                 is_admin=bool(row['is_admin']),
                 is_banned=bool(row['is_banned']),
+                premium=bool(row['premium']),
+                mode=row['mode'],
+                upper_color=row['upper_color'],
+                bottom_color=row['bottom_color'],
+                upper_stroke_color=row['upper_stroke_color'],
+                bottom_stroke_color=row['bottom_stroke_color'],
+                stroke_width=row['stroke_width'],
+                giant_text=bool(row['giant_text']),
                 registration_date=(
                     datetime.fromisoformat(row['registration_date']) + timedelta(hours=3)
                     if row['registration_date']
@@ -108,13 +125,13 @@ class UsersTable(BaseTable):
             total_pages=0   # -//-
         )
 
-        self.cursor.execute('''
+        self.cursor.execute(f'''
             SELECT 
                 u.user_id, u.username, u.first_name, u.last_name, 
                 u.is_admin, u.is_banned, u.registration_date,
                 COUNT(q.query_id) as query_count
-            FROM users u
-            LEFT JOIN queries q ON u.user_id = q.user_id
+            FROM {self.__tablename__} u
+            LEFT JOIN UserQueries q ON u.user_id = q.user_id
             GROUP BY u.user_id
             ORDER BY u.registration_date DESC
             LIMIT ? OFFSET ?
@@ -134,7 +151,7 @@ class UsersTable(BaseTable):
             query_count=row['query_count']
         ) for row in self.cursor]
 
-        self.cursor.execute('SELECT COUNT(*) as total FROM users')
+        self.cursor.execute(f'SELECT COUNT(*) as total FROM {self.__tablename__}')
         total_users = self.cursor.fetchone()['total']
 
         pagination.total_items = total_users
@@ -210,6 +227,34 @@ class UsersTable(BaseTable):
             self.conn.rollback()
             self._log('ERROR', error=str(e), action='SET_BAN_STATUS', user_id=user_id)
             return False
+
+    def change_mode(self, user_id: int, mode: str) -> None:
+        try:
+            self.cursor.execute(f'UPDATE {self.__tablename__} SET mode=? WHERE user_id=?', (mode, user_id))
+            self.cursor.execute(f'UPDATE {self.__tablename__} SET mode=? WHERE user_id=?', (mode, user_id))
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback()
+            self._log('ERROR', error=str(e), action='CHANGE_MODE', user_id=user_id, mode=mode)
+
+    def change_color(self, user_id: int, color: str, color_place: str) -> None:
+        try:
+            if color_place in ColorFields.all_fields():
+                self.cursor.execute(f'UPDATE {self.__tablename__} SET {color_place}=? WHERE user_id=?', (color, user_id))
+                self.conn.commit()
+            else:
+                raise ValueError(f'Недопустимое поле для цвета: {color_place}')
+        except Exception as e:
+            self.conn.rollback()
+            self._log('ERROR', error=str(e), action='CHANGE_COLOR', user_id=user_id, color_place=color_place, color=color)
+
+    def change_text_case(self, user_id: int, giant: bool) -> None:
+        try:
+            self.cursor.execute(f'UPDATE {self.__tablename__} SET giant_text=? WHERE user_id=?', (giant, user_id))
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback()
+            self._log('ERROR', error=str(e), action='CHANGE_CASE', user_id=user_id, giant=giant)
 
 
 if __name__ == '__main__':

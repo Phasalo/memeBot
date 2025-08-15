@@ -1,3 +1,4 @@
+import inspect
 from typing import List, Union, Tuple
 from aiogram import Router
 from aiogram.filters import Command
@@ -22,8 +23,11 @@ class BaseRouter(Router):
             self.available_commands.append(CommandUnit(commands[0], commands[1:], description, self.is_admin, placeholders if placeholders else None))
 
             @self.message(Command(*commands, ignore_case=True))
-            async def wrapper(message: Message):
-                await handler(message)
+            async def wrapper(message: Message, **kwargs):
+                if "user_row" in inspect.signature(handler).parameters:
+                    await handler(message, user_row=kwargs.get("user_row"))
+                else:
+                    await handler(message)
 
             return handler
 

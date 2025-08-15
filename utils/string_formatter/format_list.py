@@ -2,7 +2,7 @@ from typing import List, Optional
 from DB.models import UserModel, QueryModel
 from phrases import PHRASES_RU
 from DB.models import Pagination
-from utils import format_string
+from utils.string_formatter import format_string
 
 
 def format_user_list(users_info: List[UserModel], pagination: Pagination) -> str:

@@ -4,7 +4,7 @@ from aiogram.types import Message
 from phrases import PHRASES_RU
 from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
-from utils import format_list
+from utils.string_formatter import format_list
 from bot import pages
 from bot.bot_utils import command_arguments
 from bot.bot_utils.routers import AdminRouter, BaseRouter

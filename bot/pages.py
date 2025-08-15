@@ -6,7 +6,7 @@ from DB.tables.queries import QueriesTable
 from DB.tables.users import UsersTable
 from config import bot
 from config.const import USERS_PER_PAGE, QUERIES_PER_PAGE
-from utils import format_list
+from utils.string_formatter import format_list
 from bot import keyboards
 
 

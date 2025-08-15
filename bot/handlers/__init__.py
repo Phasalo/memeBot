@@ -1,1 +1,1 @@
-from . import admin, default, callbacks, inline, phasalo_drollery
+from . import admin, default, callbacks, phasalo_drollery

@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Tuple, Optional, Any
 from aiogram.filters.callback_data import CallbackData
 
+from config.const import SettingsAction
+
 
 @dataclass
 class CommandUnit:
@@ -23,7 +25,24 @@ class CommandUnit:
         return base
 
 
-class PageCallBack(CallbackData, prefix='cut'):
+class PageCallBack(CallbackData, prefix='page'):
     type_of_event: int
     user_id: int = 0
     page: int = 1
+
+
+class SetsCallBack(CallbackData, prefix='sets'):
+    action: SettingsAction
+
+
+class ModeCallBack(CallbackData, prefix='mode'):
+    mode: str
+
+
+class ColorCallBack(CallbackData, prefix='color'):
+    color: str
+    action: SettingsAction
+
+
+class GenerateCallBack(CallbackData, prefix='gen'):
+    query_id: int

@@ -14,3 +14,9 @@ class AdminFilter(BaseFilter):
             if user:
                 return user.is_admin
             return False
+
+
+class ExplainBlyat(BaseFilter):
+    async def __call__(self, message: Message) -> bool:
+        required = 'поясни за '
+        return message.text[0:len(required)].lower() == required

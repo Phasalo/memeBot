@@ -12,7 +12,16 @@ class UserModel:
     last_name: Optional[str] = None
     is_admin: bool = False
     is_banned: bool = False
+    premium: bool = False
+    mode: Optional[str] = 'in'
+    upper_color: str = '#FFFFFF'
+    bottom_color: str = '#FFFFFF'
+    upper_stroke_color: str = '#000000'
+    bottom_stroke_color: str = '#000000'
+    stroke_width: int = 3
+    giant_text: bool = False
     registration_date: Optional[datetime] = None
+
     query_count: int = 0
 
     def full_name(self) -> str:

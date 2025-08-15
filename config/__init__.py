@@ -29,13 +29,14 @@ class LogConfig:
 class TgBot:
     token: str
     password: str
-    message_max_symbols: int = 400
+    message_max_symbols: int = 500
 
 
 @dataclass
 class Config:
     tg_bot: TgBot
     log: LogConfig
+    gemini_api_key: str = os.getenv('GEMINI_API_KEY')
 
 
 def __load_config() -> Config:

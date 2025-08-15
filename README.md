@@ -1,88 +1,13 @@
-<h1 align="center">Phasalo Bot Template</h1>
+<h1 align="center">Meme Bot</h1>
 <p align="center">
-Полпути к идеальному боту. Красиво, как всегда.
+Мемы только тут. Красиво, как всегда.
 </p>
 <p align="center">
-<img src="https://img.shields.io/badge/made%20by-CSSSensei,%20MaxMavr-439900">
-<img src="https://img.shields.io/badge/Phasalopedia-84D300">
-<img src="https://img.shields.io/badge/version-if%20n%20==%202-D1F24E">
+<img src="https://img.shields.io/badge/made%20by-CSSSensei,%20MaxMavr-945D87">
+<img src="https://img.shields.io/badge/Phasalopedia-EDD1EC">
+<img src="https://img.shields.io/badge/version-2.0.0-D71232">
 </p>
-
-Так много лет нас просили показать, как же мы пишем таких охуительных ботов.
-Встречайте — все наши знания в одном репозитории!
-
-Это не просто шаблон, а выжимка сотен часов продакшена, боли и любви к красивому коду.
-
-<h1></h1>
-
-Две пошаговые инструкции для <small>самых маленьких</small>.
-
-## <img src="https://img.shields.io/badge/Рекомендуется-555555"><br> Работа через форк
-
-### 1. Создайте форк репозитория
-Нажмите кнопку [`Fork`](https://github.com/Phasalo/PhasaloBotTemplate/fork) в правом верхнем углу и выберите свой аккаунт.
-
-### 2. Клонируйте свой форк
-```bash
-git clone https://github.com/ВАШ_АККАУНТ/PhasaloBotTemplate.git my-project
-cd my-project
-```
-> Замените `my-project` на имя директории, куда хотите всё сохранить.
-
-### 3. Настройте связь с оригиналом
-Чтобы получать обновления
-```bash
-git remote add upstream https://github.com/Phasalo/PhasaloBotTemplate.git
-```
-
-### 4. Проверьте репозитории
-```bash
-git remote -v
-```
-Должно показать
-```
-origin    # ваш форк (чтение/запись)
-upstream  # оригинал (только чтение)
-```
-
-### Как обновляться из оригинала
-Если хотите получить свежие изменения
-```bash
-git fetch upstream
-git merge upstream/main
-```
-или для перезаписи всех изменений
-```bash
-git reset --hard upstream/main
-```
-
-### Пользуйтесь!
-Теперь вы можете:
-- Свободно менять код в своём форке
-- Создавать новые ветки
-- Предлагать изменения в оригинал через Pull Request
-
-## Независимый проект
-
-### 1. Клонируем репозиторий
-```bash
-git clone https://github.com/Phasalo/PhasaloBotTemplate.git my-project
-cd my-project
-```
-> Замените `my-project` на имя директории, куда хотите всё сохранить.
-
-### 2. Удаляем привязку к оригиналу
-```bash
-git remote remove origin
-```
-
-### 3. Проверяем
-```bash
-git remote -v
-```
-> Должно быть пусто — значит, всё получилось.
-
-### Пользуйтесь!
+Этот репозиторий является наследником [старой версии бота](https://github.com/CSSSensei/memeBot), от которой пришлось отказаться в связи с масштабным рефакторингом.
 
 <p align="center">
   <img src="https://yan-toples.ru/Phasalo/phasalopedia_logo.png" width="1500" alt="Phasalo">

@@ -4,14 +4,14 @@ from typing import List, Optional, Tuple
 from DB.tables.base import BaseTable
 from DB.models import UserModel, QueryModel, Pagination
 
-from utils.format_string import clear_string
+from utils.string_formatter.format_string import clear_string
 
 
 class QueriesTable(BaseTable):
-    __tablename__ = 'queries'
+    __tablename__ = 'UserQueries'
 
     def create_table(self):
-        """Создание таблицы queries"""
+        """Создание таблицы UserQueries"""
         self.cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS {self.__tablename__} (
             query_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,7 +40,7 @@ class QueriesTable(BaseTable):
         SELECT q.query_id, q.user_id, q.query_text, q.query_date,
                u.username, u.first_name, u.last_name, u.is_admin
         FROM {self.__tablename__} q
-        LEFT JOIN users u ON q.user_id = u.user_id
+        LEFT JOIN users_info u ON q.user_id = u.user_id
         WHERE q.query_id = ?''', (query_id,))
         row = self.cursor.fetchone()
         if row:
@@ -80,7 +80,7 @@ class QueriesTable(BaseTable):
                 q.query_id, q.user_id, q.query_text, q.query_date,
                 u.username, u.first_name, u.last_name, u.is_admin
             FROM {self.__tablename__} q
-            LEFT JOIN users u ON q.user_id = u.user_id
+            LEFT JOIN users_info u ON q.user_id = u.user_id
             WHERE q.user_id = ?
             ORDER BY q.query_date DESC
             LIMIT ? OFFSET ?
@@ -123,7 +123,7 @@ class QueriesTable(BaseTable):
         SELECT q.query_id, q.user_id, q.query_text, q.query_date,
                u.username, u.first_name, u.last_name, u.is_admin
         FROM {self.__tablename__} q
-        LEFT JOIN users u ON q.user_id = u.user_id
+        LEFT JOIN users_info u ON q.user_id = u.user_id
         ORDER BY q.query_date DESC'''
 
         params = ()
