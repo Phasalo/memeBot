@@ -28,8 +28,8 @@ success:
   demoted: "Уровень доступа пользователя <i>{user_id}</i> понижен"
   promoted_by: "Уровень доступа пользователя <i>{user_id}</i> повышен"
   promoted: "Теперь Вы администратор"
-  banned: "Пользователь <i>{user_id}</i> успешно заблокирован"
-  unbanned: "Пользователь <i>{user_id}</i> успешно разблокирован"
+  banned: "Пользователь <a href=\"tg://user?id={user_id}\"><i>{user_id}</i></a> успешно заблокирован"
+  unbanned: "Пользователь <a href=\"tg://user?id={user_id}\"><i>{user_id}</i></a> успешно разблокирован"
   clear_temp: "Временные файлы очищены"
 
 error:
