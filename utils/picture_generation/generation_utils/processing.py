@@ -3,8 +3,8 @@ from typing import Tuple, Union, List
 import numpy as np
 from PIL import Image, ImageDraw
 
-from utils.picture.picture_utils.calculations import decoding_color
-from utils.picture.picture_utils.models import Point
+from utils.picture_generation.generation_utils.calculations import decoding_color
+from utils.picture_generation.generation_utils.models import Point
 
 
 def minside_resize(img: Image.Image, min_side: int = 1000) -> Image.Image:

@@ -1,8 +1,8 @@
 from typing import Optional
 from PIL import Image, ImageDraw, ImageFont
 from config.const import TEMP_DIR
-from utils.picture.picture_utils.calculations import unique_name, fit_font_width, text_height, textbbox_points
-from utils.picture.picture_utils.models import Text, DemotivatorStyle, Point
+from utils.picture_generation.generation_utils.calculations import unique_name, fit_font_width, text_height, textbbox_points
+from utils.picture_generation.generation_utils.models import Text, DemotivatorStyle, Point
 from assets.fonts import FONT_TIMES
 
 FOOTNOTE_TEXT = 'phasalopedia.ru'

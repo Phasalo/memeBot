@@ -6,7 +6,7 @@ from config.const import MemeModes
 from utils.searcher.search_picture import search_picture
 from utils.string_formatter.required_case import word2case
 from DB.tables.towns import take_from_db
-from utils.image_generation.creation_picture import *
+from utils.picture_generation_OLD.creation_picture import *
 
 
 def random_insult() -> str:

@@ -3,11 +3,11 @@ from typing import Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageFont
 from config.const import TEMP_DIR
-from utils.picture.picture_utils.calculations import (unique_name,
-                                                      fit_font_width,
-                                                      text_height)
-from utils.picture.picture_utils.models import Text, Point, Stroke
-from utils.picture.picture_utils.processing import minside_resize
+from utils.picture_generation.generation_utils.calculations import (unique_name,
+                                                                    fit_font_width,
+                                                                    text_height)
+from utils.picture_generation.generation_utils.models import Text, Point, Stroke
+from utils.picture_generation.generation_utils.processing import minside_resize
 from assets.fonts import FONT_IMPACT
 from utils.string_formatter.word_declension import decline_word
 

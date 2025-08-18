@@ -3,8 +3,8 @@ from typing import Optional, cast, Callable
 from PIL import ImageDraw, Image, ImageFont, ImageEnhance, ImageFilter
 import numpy as np
 from config.const import TEMP_DIR
-from utils.picture.picture_utils.calculations import fit_font_width, unique_name
-from utils.picture.picture_utils.models import Text
+from utils.picture_generation.generation_utils.calculations import fit_font_width, unique_name
+from utils.picture_generation.generation_utils.models import Text
 
 
 MAX_RANDOM_STEPS = 10
@@ -274,7 +274,7 @@ def create_what(image_path: str,
 
 
 if __name__ == '__main__':
-    from utils.picture.picture_utils.models import Stroke
+    from utils.picture_generation.generation_utils.models import Stroke
     from assets.fonts import FONT_IMPACT, FONT_LOBSTER
 
     test_text_block = Text(text='Что?', font=FONT_LOBSTER, color='#FFFFFF', stroke=Stroke(color='#000000', width=3))
