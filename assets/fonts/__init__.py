@@ -2,6 +2,7 @@ from config.const import FONTS_DIR
 
 FONT_IMPACT = str(FONTS_DIR / 'Impact.ttf')
 FONT_LOBSTER = str(FONTS_DIR / 'Lobster.ttf')
+FONT_COMIC = str(FONTS_DIR / 'Comic Sans MS.ttf')
 
 FONT_ARIAL = str(FONTS_DIR / 'Arial.ttf')
 FONT_TIMES = str(FONTS_DIR / 'Times New Roman.ttf')
