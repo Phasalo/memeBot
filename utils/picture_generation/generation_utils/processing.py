@@ -7,13 +7,6 @@ from utils.picture_generation.generation_utils.calculations import decoding_colo
 from utils.picture_generation.generation_utils.models import Point
 
 
-def minside_resize(img: Image.Image, min_side: int = 1000) -> Image.Image:
-    width, height = img.size
-    scale = min_side / min(width, height)
-    new_size = (int(width * scale), int(height * scale))
-    return img.resize(new_size, Image.LANCZOS)
-
-
 def fit_crop(image: Image.Image, width: int = 1000, height: int = 1000) -> Image.Image:
     w, h = image.size
     scale = max(width / w, height / h)

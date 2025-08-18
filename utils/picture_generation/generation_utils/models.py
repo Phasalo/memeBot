@@ -8,6 +8,10 @@ class Size:
     width: int
     height: int
 
+    @property
+    def tuple(self):
+        return self.width, self.height
+
 
 @dataclass
 class Point:

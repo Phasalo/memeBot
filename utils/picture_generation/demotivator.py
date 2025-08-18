@@ -1,30 +1,77 @@
-from typing import Optional
+from typing import Optional, Tuple
 from PIL import Image, ImageDraw, ImageFont
 from config.const import TEMP_DIR
-from utils.picture_generation.generation_utils.calculations import unique_name, fit_font_width, text_height, textbbox_points
-from utils.picture_generation.generation_utils.models import Text, DemotivatorStyle, Point
+from utils.picture_generation.generation_utils.calculations import unique_name, fit_font_width, text_height, \
+    textbbox_points, size_minside
+from utils.picture_generation.generation_utils.models import Text, DemotivatorStyle, Point, Size
 from assets.fonts import FONT_TIMES
+from moviepy import VideoFileClip, ImageClip, CompositeVideoClip
 
 FOOTNOTE_TEXT = 'phasalopedia.ru'
 FOOTNOTE_FONT = ImageFont.truetype(FONT_TIMES, 25)
 
+WIDTH_MEM_SIDE: int = 700
+MARGIN: int = 50
+IMAGE_INDENT: int = 50
+TEXT_MARGIN: int = 150
+INTERLIGNAGE: int = 25
 
-def create_demotivator(image_path: str,
-                       mem_style: DemotivatorStyle,
-                       top_text: Optional[Text] = None,
-                       bottom_text: Optional[Text] = None,
-                       width_mem_side: int = 1000,
-                       margin: int = 50,
-                       image_indent: int = 50,
-                       text_margin: int = 150,
-                       interlignage: int = 25) -> str:
-    image_paste = Image.open(image_path).convert('RGB')
 
-    width_img_container = width_mem_side - (2 * margin)
-    ratio = image_paste.height / image_paste.width
-    image_paste = image_paste.resize((width_img_container, round(width_img_container * ratio)), Image.LANCZOS)
+def create_demotivator_image(image_path: str,
+                             mem_style: DemotivatorStyle,
+                             top_text: Optional[Text] = None,
+                             bottom_text: Optional[Text] = None) -> str:
+    frame_image = Image.open(image_path).convert('RGB')
+    width_img_container = WIDTH_MEM_SIDE - (2 * MARGIN)
+    ratio = frame_image.height / frame_image.width
+    size = (width_img_container, round(width_img_container * ratio))
+    frame_image = frame_image.resize(size, Image.LANCZOS)
 
-    width_text_container = width_mem_side - (2 * text_margin)
+    image_path = _create_demotivator(Size(*size), mem_style, top_text, bottom_text)
+    image = Image.open(image_path).convert('RGBA')
+
+    image.paste(frame_image, (MARGIN, MARGIN))
+
+    save_path = TEMP_DIR / unique_name(prefix='image_demotivator', extension='.png')
+    image.save(save_path, format='PNG')
+    return save_path
+
+
+def create_demotivator_video(video_path: str,
+                             mem_style: DemotivatorStyle,
+                             top_text: Optional[Text] = None,
+                             bottom_text: Optional[Text] = None) -> str:
+    video = VideoFileClip(video_path)
+    width_img_container = WIDTH_MEM_SIDE - (2 * MARGIN)
+    video_width, video_height = video.size
+    ratio = video_height / video_width
+    size = (width_img_container, round(width_img_container * ratio))
+    video = video.resized(size)
+
+    frame_image_path = _create_demotivator(Size(*size), mem_style, top_text, bottom_text)
+    frame_image = ImageClip(frame_image_path).with_duration(video.duration)
+
+    video = video.with_position((MARGIN, MARGIN))
+    video = CompositeVideoClip([frame_image, video])
+
+    save_path = TEMP_DIR / unique_name(prefix='video_demotivator', extension='.mp4')
+    video.write_videofile(save_path)
+    return save_path
+
+
+def _create_demotivator(image_size: Size,
+                        mem_style: DemotivatorStyle,
+                        top_text: Optional[Text] = None,
+                        bottom_text: Optional[Text] = None) -> str:
+    width_text_container = WIDTH_MEM_SIDE - (2 * TEXT_MARGIN)
+
+    top_font = None
+    bottom_font = None
+    top_height = None
+    bottom_height = None
+    top_font_size = None
+    bottom_font_size = None
+
     if top_text:
         top_font_size = fit_font_width(top_text.text, width_text_container, top_text.font)
     if bottom_text:
@@ -42,35 +89,33 @@ def create_demotivator(image_path: str,
         bottom_font = ImageFont.truetype(bottom_text.font, bottom_font_size)
         bottom_height = text_height(bottom_text.text, bottom_font)
 
-    img_height = margin + image_paste.height
+    image_height = MARGIN + image_size.height
     if top_text:
-        img_height += top_height
+        image_height += top_height
     if bottom_text:
-        img_height += bottom_height
+        image_height += bottom_height
     if top_text and bottom_text:
-        img_height += interlignage
+        image_height += INTERLIGNAGE
     if top_text or bottom_text:
-        img_height += image_indent
-    img_height += margin
+        image_height += IMAGE_INDENT
+    image_height += MARGIN
 
-    image = Image.new('RGB', (width_mem_side, img_height), mem_style.background_color)
+    image = Image.new('RGB', (WIDTH_MEM_SIDE, image_height), mem_style.background_color)
     canvas = ImageDraw.Draw(image)
 
     canvas.rectangle(
-        (margin - mem_style.stroke_indent,
-         margin - mem_style.stroke_indent,
-         margin + image_paste.width + mem_style.stroke_indent,
-         margin + image_paste.height + mem_style.stroke_indent),
+        (MARGIN - mem_style.stroke_indent,
+         MARGIN - mem_style.stroke_indent,
+         MARGIN + image_size.width + mem_style.stroke_indent,
+         MARGIN + image_size.height + mem_style.stroke_indent),
         fill=mem_style.background_color,
         outline=mem_style.stroke.color,
         width=mem_style.stroke.width,
     )
 
-    image.paste(image_paste, (margin, margin))
-
     footnote_top_left, footnote_bottom_right = textbbox_points(
         canvas,
-        (image_paste.width + margin, image_paste.height + margin),
+        (image_size.width + MARGIN, image_size.height + MARGIN),
         FOOTNOTE_TEXT,
         FOOTNOTE_FONT,
         anchor='rt'
@@ -85,8 +130,8 @@ def create_demotivator(image_path: str,
     )
 
     canvas.text(
-        (image_paste.width + margin,
-         image_paste.height + margin),
+        (image_size.width + MARGIN,
+         image_size.height + MARGIN),
         FOOTNOTE_TEXT,
         font=FOOTNOTE_FONT,
         fill=mem_style.stroke.color,
@@ -94,9 +139,9 @@ def create_demotivator(image_path: str,
     )
 
     center_x = image.width // 2
-    top_point = Point(center_x, margin + image_paste.height + image_indent)
+    top_point = Point(center_x, MARGIN + image_size.height + IMAGE_INDENT)
     if top_text and bottom_text:
-        bottom_point = Point(center_x, top_point.y + top_height + interlignage)
+        bottom_point = Point(center_x, top_point.y + top_height + INTERLIGNAGE)
     else:
         bottom_point = top_point
 
@@ -118,6 +163,20 @@ def create_demotivator(image_path: str,
             anchor='mt'
         )
 
-    save_path = TEMP_DIR / unique_name(prefix='demotivator', extension='.png')
+    save_path = TEMP_DIR / unique_name(prefix='raw_demotivator', extension='.png')
     image.save(save_path, format='PNG')
     return save_path
+
+
+if __name__ == '__main__':
+    from assets.fonts import FONT_TIMES, FONT_ARIAL
+
+    create_demotivator_video(video_path=r'L:\maxim\PythonProjects\memeBot\temp\ast\fam.mp4',
+                             mem_style=DemotivatorStyle(),
+                             top_text=Text(text='Опа, а это видео', font=FONT_TIMES),
+                             bottom_text=Text(text='Опа, а это видео', font=FONT_ARIAL))
+
+    create_demotivator_image(image_path=r'L:\maxim\PythonProjects\memeBot\temp\ast\dog2.jpg',
+                             mem_style=DemotivatorStyle(),
+                             top_text=Text(text='Опа, а это видео', font=FONT_TIMES),
+                             bottom_text=Text(text='Опа, а это видео', font=FONT_ARIAL))
