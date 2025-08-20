@@ -1,10 +1,8 @@
-from typing import Tuple, Union, List
-
+from typing import Tuple, List, Optional
 import numpy as np
 from PIL import Image, ImageDraw
-
 from utils.picture_generation.generation_utils.calculations import decoding_color
-from utils.picture_generation.generation_utils.models import Point
+from utils.picture_generation.generation_utils.models import Point, TextStyle
 
 
 def fit_crop(image: Image.Image, width: int = 1000, height: int = 1000) -> Image.Image:
@@ -13,7 +11,6 @@ def fit_crop(image: Image.Image, width: int = 1000, height: int = 1000) -> Image
     new_w, new_h = int(w * scale), int(h * scale)
     image = image.resize((new_w, new_h), Image.LANCZOS)
 
-    # центрируем и обрезаем
     left = (new_w - width) // 2
     top = (new_h - height) // 2
     right = left + width
@@ -22,22 +19,31 @@ def fit_crop(image: Image.Image, width: int = 1000, height: int = 1000) -> Image
     return image.crop((left, top, right, bottom))
 
 
-def recolor_image(image: Image.Image, color: Union[Tuple[int, int, int], Tuple[int, int, int, int]]) -> Image.Image:
-    image = image.convert("RGBA")
-    alpha = image.getchannel("A")
+def draw_multiline_text(canvas: ImageDraw.Draw,
+                        text_list: List[str],
+                        text_style: TextStyle,
+                        start_point: Point,
+                        shift_y: Optional[int] = None,
+                        multiplier_shift: Optional[float] = None,
+                        anchor: str = 'ms') -> None:
+    if shift_y is None:
+        shift_y = text_style.line_height
 
-    if len(color) == 3:
-        rgb = color
-        color_alpha = 255
-    else:
-        rgb = color[:3]
-        color_alpha = color[3]
+    if multiplier_shift is None:
+        multiplier_shift = 1
 
-    colored_image = Image.new("RGBA", image.size, rgb + (color_alpha,))
-    final_alpha = Image.eval(alpha, lambda a: a * color_alpha // 255)
-    colored_image.putalpha(final_alpha)
-
-    return colored_image
+    string_y = start_point.y
+    for string in text_list:
+        canvas.text(
+            (start_point.x, string_y),
+            string,
+            font=text_style.font.true_type,
+            fill=text_style.color,
+            stroke_width=text_style.stroke.width,
+            stroke_fill=text_style.stroke.color,
+            anchor=anchor
+        )
+        string_y += int(shift_y * multiplier_shift)
 
 
 def draw_round_gradient(width: int, height: int,
