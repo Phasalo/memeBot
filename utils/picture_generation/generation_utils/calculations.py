@@ -1,87 +1,69 @@
 import uuid
 from datetime import datetime
-from typing import Tuple
-from PIL import ImageFont, ImageDraw, Image
-from utils.picture_generation.generation_utils.models import Point
+from typing import Tuple, Union
+from PIL import ImageFont
+from utils.picture_generation.generation_utils.models import Size, Area, Font
+
+TEST_TEXT_SIZE = 100
+SizeLike = Union[Tuple[int, int], Size, Area]
 
 
-def size_minside(size: Tuple[int, int], min_side: int) -> Tuple[int, int]:
-    width, height = size
+def size_like_to_tuple(size_like: SizeLike) -> Tuple[int, int]:
+    if isinstance(size_like, tuple):
+        return size_like
+    else:
+        return size_like.width, size_like.height
+
+
+def scale_to_width(size: SizeLike, new_width: int) -> Size:
+    width, height = size_like_to_tuple(size)
+    scale = new_width / width
+    return Size(int(width * scale), int(height * scale))
+
+
+def scale_to_height(size: SizeLike, new_height: int) -> Size:
+    width, height = size_like_to_tuple(size)
+    scale = new_height / height
+    return Size(int(width * scale), int(height * scale))
+
+
+def scale_to_min_side(size: SizeLike, min_side: int) -> Size:
+    width, height = size_like_to_tuple(size)
     scale = min_side / min(width, height)
-    return int(width * scale), int(height * scale)
+    return Size(int(width * scale), int(height * scale))
 
 
-def fit_font_width(text: str, width: int, font_path: str) -> int:
-    test_size = 100
-    font = ImageFont.truetype(font_path, test_size, encoding='UTF-8')
-
-    text_width = font.getbbox(text)[2]
-    scale = width / text_width
-
-    return int(test_size * scale)
+def font_width(text: str, font: ImageFont.FreeTypeFont,) -> int:
+    return font.getlength(text)
 
 
-def fit_font_height(text: str, height: int, font_path: str) -> int:
-    test_size = 100
-    font = ImageFont.truetype(font_path, test_size, encoding='UTF-8')
+def font_to_width(text: str, block_width: int, font_path: str) -> int:
+    font = ImageFont.truetype(font_path, TEST_TEXT_SIZE, encoding='UTF-8')
 
-    text_height = font.getbbox(text)[3] - font.getbbox(text)[1]
-    scale = height / text_height
+    text_width = font_width(text, font)
+    scale = block_width / text_width
 
-    return int(test_size * scale)
-
-
-def shortened_text_by_font(text: str, width: int,
-                           font_path: str, min_font_size: int,
-                           text_overflow: str = "...") -> Tuple[str, int]:
-    font_size = fit_font_width(text, width, font_path)
-
-    if font_size >= min_font_size:
-        return text
-
-    approx_len = max(0, int(len(text) * font_size / min_font_size))
-    short_text = text[:approx_len]
-
-    if len(short_text) < len(text):
-        short_text = short_text.rstrip() + text_overflow
-
-    return short_text, font_size
+    return int(TEST_TEXT_SIZE * scale)
 
 
-def wrap_text_to_fit_width(text: str, width: int, font_path: str, min_font_size: int):
-    font_size = fit_font_width(text, width, font_path)
+def font_to_height(block_height: int, font_path: str) -> int:
+    font = ImageFont.truetype(font_path, TEST_TEXT_SIZE, encoding='UTF-8')
 
-    # Если размер шрифта меньше минимального, переносим на новые строки
-    if font_size < min_font_size:
-        font_size = min_font_size
-        words = text.split()
-        lines = []
-        current_line = ""
-        font = ImageFont.truetype(font_path, font_size, encoding='UTF-8')
+    text_height = font_height(font)
+    scale = block_height / text_height
 
-        for word in words:
-            test_line = (current_line + " " + word).strip()
-            line_width = font.getbbox(test_line)[2]
-            if line_width <= width:
-                current_line = test_line
-            else:
-                lines.append(current_line)
-                current_line = word
-        lines.append(current_line)
-        return font_size, lines
-
-    return font_size, [text]
+    return int(TEST_TEXT_SIZE * scale)
 
 
-def text_height(text: str, font: ImageFont.FreeTypeFont) -> int:
-    bbox = ImageDraw.Draw(Image.new('RGB', (1, 1))).textbbox((0, 0), text, font=font)
-    return bbox[3] - bbox[1]
+def font_to_block(text: str, block: SizeLike, font_path: str) -> int:
+    font = ImageFont.truetype(font_path, TEST_TEXT_SIZE, encoding='UTF-8')
 
+    text_width, text_height = font_width(text, font), font_height(font)
+    width, height = size_like_to_tuple(block)
 
-def unique_name(prefix: str = 'photo', extension: str = '.png') -> str:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    unique_id = uuid.uuid4().hex[:16]
-    return f"{prefix}_{timestamp}_{unique_id}{extension}"
+    scale = max(width / text_width, height / text_height)
+
+    return int(TEST_TEXT_SIZE * scale)
 
 
 def decoding_color(color: str) -> Tuple[int, int, int, int]:
@@ -94,12 +76,3 @@ def decoding_color(color: str) -> Tuple[int, int, int, int]:
     else:
         raise ValueError("Invalid color format")
     return r, g, b, a
-
-
-def textbbox_points(canvas: ImageDraw.ImageDraw,
-                    pos: Tuple[int, int],
-                    text: str,
-                    font: ImageFont.FreeTypeFont,
-                    anchor: str = "lt") -> Tuple[Point, Point]:
-    x1, y1, x2, y2 = canvas.textbbox(pos, text, font=font, anchor=anchor)
-    return Point(x1, y1), Point(x2, y2)
