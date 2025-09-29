@@ -173,7 +173,7 @@ class TextStyle:
     font: Font
     color: str
     line_width: Optional[int] = None
-    stroke: Optional[Stroke] = Stroke()
+    stroke: Stroke = Stroke()
 
     @property
     def ascent(self) -> int:
@@ -190,9 +190,9 @@ class TextStyle:
 
 @dataclass
 class DefaultTextStyle(TextStyle):
-    font: Font = Font(FONT_ARIAL)
+    font: Font = field(default_factory=lambda: Font(FONT_ARIAL))
     color: str = '#FFFFFF'
-    stroke = Stroke(color='#000000', width=3)
+    stroke: Optional[Stroke] = field(default_factory=lambda: Stroke(color='#000000', width=3))
 
 
 class InsultStyle(NamedTuple):
@@ -210,5 +210,5 @@ class DemotivatorStyle(NamedTuple):
 class FactStyle(NamedTuple):
     gradient_inner_color: str = "#000000AA"
     gradient_outer_color: str = "#00000000"
-    line: Stroke = Stroke(color='#FFFFFFAA', width=4, length=200)
+    line: Stroke = Stroke(color='#FFFFFFAA', width=4)
     shadow_color: str = "#000000"
